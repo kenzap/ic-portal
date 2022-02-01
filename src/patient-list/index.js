@@ -1,6 +1,6 @@
 // js dependencies
-import { getSiteId, getPageNumber, getPagination, simulateClick, getCookie, initBreadcrumbs, parseApiError, formatStatus, formatPrice, formatTime, onClick, onKeyUp, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, initFooter } from "../_/_ui.js"
+import { getSiteId, getPageNumber, getPagination, simulateClick, getCookie, initBreadcrumbs, parseApiError, formatTime, onClick, onKeyUp, link } from "../_/_helpers.js"
+import { showLoader, hideLoader, initFooter, initHeader } from "../_/_ui.js"
 import { patientListContent } from "../_/_cnt_patient_list.js"
 import { i18n } from "../_/_i18n.js"
 
@@ -36,6 +36,8 @@ const _this = {
                 'Accept': 'application/json',
                 'Content-Type': 'text/plain',
                 'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                // 'Kenzap-Navbar': localStorage.hasOwnProperty('navbar'),
+                'Kenzap-Header': false,
                 'Kenzap-Token': getCookie('kenzap_token'),
                 'Kenzap-Sid': getSiteId(),
             },
@@ -79,14 +81,14 @@ const _this = {
                 // initiate locale
                 i18n.init(response.locale);
 
+                // init header
+                initHeader(response);
+                
                 // get core html content 
                 _this.loadPageStructure();  
 
                 // render table
                 _this.renderPage(response);
-
-                // init header
-                _this.initHeader(response);
 
                 // bind content listeners
                 _this.initListeners();
@@ -109,15 +111,10 @@ const _this = {
             console.error('Error:', error);
         });
     },
-    initHeader: (response) => {
+    // initHeader: (response) => {
 
-        onClick('.nav-back', (e) => {
-
-            e.preventDefault();
-            let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-            simulateClick(link);
-        });
-    },
+    //     initHeader();
+    // },
     authUser: (response) => {
 
         if(response.user){
@@ -162,8 +159,7 @@ const _this = {
                         </div>
                         <span>${ __("Name") }</span>
                     </th>
-                    <th>${ __("Alerts") }</th>
-                    <th>${ __("Last anomalies") }</th>
+                    <th>${ __("Latest anomalies") }</th>
                     <th>${ __("Last update") }</th>
                     <th></th>
                 </tr>`;
@@ -183,6 +179,7 @@ const _this = {
 
         // generate website table
         let list = '';
+
         for (let i in response.patients) {
 
             let img = 'https://account.kenzap.com/images/default_avatar.jpg';
@@ -204,11 +201,9 @@ const _this = {
                         </div>
                     </td>
                     <td>
-                        <span>${ formatStatus(response.patients[i].status) }</span>
+                        <span>${ _this.formatAnomalies(response.patients[i]) }</span>
                     </td>
-                    <td>
-                        <span>${ (response.patients[i].price) }</span>
-                    </td>
+
                     <td>
                         <span>${ formatTime(response.patients[i].updated) }</span>
                     </td>
@@ -331,6 +326,16 @@ const _this = {
 
         modalSuccessBtnFunc: null
     },
+    formatAnomalies: (list) => {
+
+        if(list._id == '3d7dc7a902a87a9968d545f74044e1b9c26bcbc5'){
+
+            return '<a target="_blank" href="#"><div class="badge bg-danger text-light fw-light me-1">hypertension</div><div class="badge bg-danger text-light fw-light me-1">hypertension-stage-2</div></a>';
+        }else{
+
+            return '-';
+        }
+    },
     addPatient: (e) => {
 
         let modal = document.querySelector(".modal");
@@ -399,7 +404,7 @@ const _this = {
                 if (response.success){
 
                     // open patient editing page
-                    window.location.href = `/patient-view/?id=${ response.patient.id}`
+                    window.location.href = link(`/patient-view/?id=${ response.patient.id}`)
 
                 }else{
 
@@ -418,7 +423,8 @@ const _this = {
 
         modalCont.show();
 
-        setTimeout( () => modal.querySelector("#p-title").focus(),100 );
+        // set input focus
+        setTimeout( () => modal.querySelector("#p-name").focus(),100 );
 
     },
     initPagination: (response) => {

@@ -1,5 +1,5 @@
 // js dependencies
-import { getSiteId, getPatientId, simulateClick, getCookie, parseApiError, onClick, onChange, formatPrice, initBreadcrumbs, link, slugify } from "../_/_helpers.js"
+import { getSiteId, getPatientId, simulateClick, getCookie, parseApiError, onClick, onChange, loadScript, formatTime, initBreadcrumbs, link, slugify } from "../_/_helpers.js"
 import { showLoader, hideLoader, simpleTags } from "../_/_ui.js"
 import { HTMLContent } from "../_/_cnt_patient_view.js"
 import { i18n } from "../_/_i18n.js"
@@ -18,7 +18,13 @@ const _this = {
     },
     state: {
         firstLoad: true,
-        ajaxQueue: 0
+        response: {},
+        modalCont: null,
+        ajaxQueue: 0,
+        record_limit: 20,
+        symptoms: { warning: ['diarrhoea'], danger: ['hypertension', 'hypertension-stage-1', 'hypertension-stage-2'] },
+        prescriptions: [],
+        tabAnalytics: false
     },
     getData: () => {
 
@@ -50,6 +56,16 @@ const _this = {
                         id:         id,   
                         fields:     '*'
                     },
+                    records:{
+                        type:       'find',
+                        key:        'ic-record',
+                        fields:     '*',
+                        limit:      _this.state.record_limit,
+                        search:     {                                                           // if s is empty search query is ignored
+                            field: 'patient_id',
+                            s:  id
+                        },
+                    },
                     settings: {
                         type:       'get',
                         key:        'ic-settings',
@@ -75,6 +91,8 @@ const _this = {
   
                 // get core html content 
                 document.querySelector('#contents').innerHTML = HTMLContent(__);
+
+                _this.state.response = response;
 
                 // check patient response
                 if (response.patient.length == 0) {
@@ -210,8 +228,82 @@ const _this = {
         }
     
         if(sectionOpen) html += `</div>`;
-
         d.querySelector("#card-view").insertAdjacentHTML('beforeEnd', html); 
+
+        // render timeline
+        let timeline = "";
+        if(response.records) response.records.forEach( el => {
+
+            let tags_html = "";
+            el.tags.forEach(tag => {
+
+                let status = 'secondary';
+                
+                if(_this.state.symptoms.danger.includes(tag)){
+                    status = 'danger';
+                }else if(_this.state.symptoms.warning.includes(tag)){
+                    status = 'warning';
+                }
+
+                tags_html += `<div class="badge bg-${status} text-light fw-light me-1">${tag}</div>`;
+            });
+
+            timeline += `
+            <li class="clearfix">
+                <a target="_blank" href="#">${tags_html}</a>
+                <p class="mb-1">${el.note}</p>
+                <span class="float-end form-text text-muted">${new Date(el.time).toLocaleString()}</span>
+            </li>
+            `;
+        });
+        if(timeline == ''){ d.querySelector(".timeline").outerHTML = __('Currently, this patient has no active records.') }else{ d.querySelector(".timeline").innerHTML = timeline; }
+        
+        // render prescriptions
+        let prescriptions = '';
+        if(response.patient.prescriptions) { 
+            
+            prescriptions += '<table class="table table-hover table-borderless align-middle table-striped table-p-list">';
+            _this.state.prescriptions = response.patient.prescriptions; response.patient.prescriptions.forEach( drug => {
+
+                let img = 'https://cdn.kenzap.com/loading.png';
+
+                // if(typeof(drug.img) === 'undefined') drug.img = [];
+                // if(drug.img[0]) img = CDN + '/S'+getSiteId()+'/medication-'+drug.id+'-1-100x100.jpeg?'+drug.time;
+            
+                if(drug.img) img = CDN + '/S'+getSiteId()+'/medication-'+drug.id+'-1-100x100.jpeg?'+drug.time;
+
+                prescriptions += `
+                    <tr>
+                        <td>
+                            <div class="timgc">
+                                <a href="${ link('/medication-edit/?id='+drug.id) }"><img src="${ img }" data-srcset="${ img }" class="img-fluid rounded" alt="${ __("Drug placeholder") }" srcset="${ img }" ></a>
+                            </div>
+                        </td>
+                        <td class="destt" style="max-width:250px;min-width:150px;">
+                            <div class="mb-3 mt-3"> 
+                                <a class="text-body" href="${ link('/medication-edit/?id='+drug.id) }" >${ drug.title }<i style="color:#9b9b9b;font-size:15px;margin-left:8px;" title="${ __("Edit product") }" class="mdi mdi-pencil menu-icon edit-page"></i></a>
+                            </div>
+                        </td>
+                        <td class="since ">
+                            <div class="float-end form-text text-muted">
+                                ${ new Date(drug.since).toLocaleString() }
+                            </div>
+                        </td>
+                        <td class="d-none">
+                            <a href="#" data-id="${ drug.id }" class="remove-product text-danger ">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>`;
+                console.log(drug);
+            }); 
+            prescriptions += '</table>';
+        }
+        if(prescriptions == ''){ prescriptions = __('Currently, this patient has no active prescriptions.') }
+        d.querySelector(".prescriptions").innerHTML = prescriptions;
 
         // general section
         d.querySelector("#p-name").innerHTML = patient.name;
@@ -249,12 +341,15 @@ const _this = {
         // break here if initListeners is called more than once
         if(!_this.state.firstLoad) return;
         
-        // // add variation block
-        // onClick('.add-mix-block', _this.listeners.addMixBlock);
+        // add record
+        onClick('.btn-add', _this.listeners.addRecord);
         
-        // // edit variation block
-        // onClick('.edit-block', _this.listeners.editBlock);
+        // add prescription
+        onClick('.add-prescription', _this.listeners.addPrescription);
 
+        // tab click listener
+        onClick('#nav-tab-2-link', _this.listeners.tabAnalytics);
+        
         // // remove variation block
         // onClick('.remove-block', _this.listeners.removeBlock);
 
@@ -266,7 +361,392 @@ const _this = {
 
     },
     listeners: {
+        
+        addRecord: (e) => {
 
+            let modal = document.querySelector(".modal");
+            let modalCont = new bootstrap.Modal(modal);
+            
+            modal.querySelector(".modal-title").innerHTML = __('Add Record');
+            modal.querySelector(".btn-primary").innerHTML = __('Add');
+            modal.querySelector(".btn-primary").style.display = "none";
+            modal.querySelector(".btn-secondary").innerHTML = __('Cancel');
+            let d = ""; 
+            let name = '', bio = '', note = '';
+            let modalHTml = `\
+            <div class="row">
+                <div class="col col-click text-center">
+                    <img src="/img/_img_cold.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Cold, runny nose</p>
+                </div>
+                <div class="col col-click text-center">
+                    <img src="/img/_img_fever.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">High fever</p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col col-click text-center">
+                    <img src="/img/_img_stethoscope.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Blood pressure, heart</p>
+                </div>
+                <div class="col col-click text-center">
+                    <img src="/img/_img_vomiting.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Vomitting</p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col col-click text-center">
+                    <img src="/img/_img_diarrhea.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Diarrhea</p>
+                </div>
+                <div class="col col-click text-center">
+                    <img src="/img/_img_skin_disease.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Allergy, rash</p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col col-click text-center">
+                    <img src="/img/_img_cough.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Cough</p>
+                </div>
+                <div class="col col-click text-center">
+                    <img src="/img/_img_headache.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Headache</p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col col-click text-center">
+                    <img src="/img/_img_conjunctivitis.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Conjunctivitis</p>
+                </div>
+                <div class="col col-click text-center">
+                    <img src="/img/_img_pain.png" style="width:100px;height:100px;" >
+                    <p class="text-muted">Muscle pain</p>
+                </div>
+            </div>
+            `;
+
+            modal.querySelector(".modal-body").innerHTML = modalHTml;
+
+            _this.listeners.modalSuccessBtnFunc = (e) => {
+
+                e.preventDefault();
+
+                let data = {};
+                data.name = modal.querySelector("#p-name").value;
+                data.bio = modal.querySelector("#p-bio").value;
+                data.note = modal.querySelector("#p-note").value;
+                data.status = "0";
+                data.img = [];
+                data.cats = [];
+
+                if(data.name.length<2){ alert(__('Please provide patient\'s full name')); return; }
+
+                // send data
+                fetch('https://api-v1.kenzap.cloud/', {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'text/plain',
+                        'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                        'Kenzap-Token': getCookie('kenzap_token'),
+                        'Kenzap-Sid': getSiteId(),
+                    },
+                    body: JSON.stringify({
+                        query: {
+                            patient: {
+                                type:       'create',
+                                key:        'ic-patient',   
+                                data:       data
+                            }
+                        }
+                    }) 
+                })
+                .then(response => response.json())
+                .then(response => {
+
+                    if (response.success){
+
+                        // open patient editing page
+                        window.location.href = `/patient-view/?id=${ response.patient.id}`
+
+                    }else{
+
+                        parseApiError(response);
+                    }
+                    
+                    console.log('Success:', response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+                console.log('savepatient');
+
+            }
+
+            modalCont.show();
+        },
+        addPrescription: (e) => {
+
+            let modal = document.querySelector(".modal");
+            _this.state.modalCont = new bootstrap.Modal(modal);
+            
+            modal.querySelector(".modal-title").innerHTML = __('Manage prescription');
+            modal.querySelector(".btn-primary").innerHTML = __('Confirm');
+            modal.querySelector(".btn-primary").style.display = "none";
+            modal.querySelector(".btn-secondary").innerHTML = __('Close');
+            let d = "", sm = ""; 
+
+            // do API query
+            fetch('https://api-v1.kenzap.cloud/', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'text/plain',
+                    'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                    'Kenzap-Token': getCookie('kenzap_token'),
+                    'Kenzap-Sid': getSiteId(),
+                },
+                body: JSON.stringify({
+                    query: {
+                        medications: {
+                            type:       'find',
+                            key:        'ic-medication',
+                            fields:     ['_id', 'id', 'img', 'status', 'cats', 'title', 'updated'],
+                            limit:      _this.state.limit,
+                            // offset:     s.length > 0 ? 0 : getPageNumber() * _this.state.limit - _this.state.limit,    // automatically calculate the offset of table pagination
+                            search:     {                                                           // if s is empty search query is ignored
+                                            field: 'title',
+                                            s: sm
+                                        },
+                            sortby:     {
+                                            field: 'title',
+                                            order: 'DESC'
+                                        }
+                        }
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(response => {
+
+                // hide UI loader
+                hideLoader();
+
+                if(response.success){
+
+                    let modalHTML = `\
+                        <div class="search-cont input-group input-group-sm mb-0 justify-content-start">     
+                            <input type="text" placeholder="Search drugs" class="form-control border-top-0 border-start-0 border-end-0 rounded-0" aria-label="Search products" aria-describedby="inputGroup-sizing-sm" style="max-width: 200px;">
+                        </div>
+                        <table class="table table-hover table-borderless align-middle table-striped table-p-list mt-2">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#212529" class="bi justify-content-end bi-search mb-1" viewBox="0 0 16 16">
+                                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                                        </svg>
+                                    </th>
+                                    <th>
+                                        <span>Title</span>
+                                    </th>
+                                    <th class="float-end">Prescription</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                            response.medications.forEach( el => {
+
+                                let img = 'https://cdn.kenzap.com/loading.png';
+
+                                if(typeof(el.img) === 'undefined') el.img = [];
+                                if(el.img[0]) img = CDN + '/S'+getSiteId()+'/medication-'+el._id+'-1-100x100.jpeg?'+el.updated;
+
+                                // check if already prescribed
+                                let checked = _this.state.prescriptions.filter( elf => elf.id == el._id).length ? 'checked="true"' : '';
+                                modalHTML += `
+                                    <tr>
+                                        <td>
+                                            <div class="timgc">
+                                                <a href="${ link('/medication-edit/?id='+el._id) }"><img src="${ img }" data-srcset="${ img }" class="img-fluid rounded" alt="${ __("Product placeholder") }" srcset="${ img }" ></a>
+                                            </div>
+                                        </td>
+                                        <td class="destt" style="max-width:250px;min-width:150px;">
+                                            <div class="mb-3 mt-3"> 
+                                                <a class="text-body" href="${ link('/medication-edit/?id='+el._id) }" >${ el.title }<i style="color:#9b9b9b;font-size:15px;margin-left:8px;" title="${ __("Edit product") }" class="mdi mdi-pencil menu-icon edit-page"></i></a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check form-switch float-end">
+                                                <input class="form-check-input toggle-prescribe" type="checkbox" data-img="${ el.img[0] }" data-id="${ el._id }" data-title="${ el.title }" role="switch" id="doPrescription" ${ checked }>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                            });
+
+                            modalHTML += `
+                            </tbody>
+                        </table>`;
+
+                        modal.querySelector(".modal-body").innerHTML = modalHTML;
+
+                        _this.state.modalCont.show();
+
+                        // prescription change listener
+                        onChange('.toggle-prescribe', _this.listeners.doPrescription);
+
+                }else{
+
+                    parseApiError(response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+
+            return;
+            // get list of prescriptions and save changes
+            _this.listeners.modalSuccessBtnFunc = (e) => {
+
+                e.preventDefault();
+
+                let data = {};
+                data.name = modal.querySelector("#p-name").value;
+      
+
+                // if(data.name.length<2){ alert(__('Please provide patient\'s full name')); return; }
+
+                // send data
+                fetch('https://api-v1.kenzap.cloud/', {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'text/plain',
+                        'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                        'Kenzap-Token': getCookie('kenzap_token'),
+                        'Kenzap-Sid': getSiteId(),
+                    },
+                    body: JSON.stringify({
+                        query: {
+                            patient: {
+                                type:       'update',
+                                key:        'ic-patient',   
+                                sid:        getSiteId(),
+                                id:         id,
+                                data:       data
+                            }
+                        }
+                    }) 
+                })
+                .then(response => response.json())
+                .then(response => {
+
+                    if (response.success){
+
+                        // open patient editing page
+                        window.location.href = `/patient-view/?id=${ response.patient.id}`
+
+                    }else{
+
+                        parseApiError(response);
+                    }
+                    
+                    console.log('Success:', response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+                console.log('savepatient');
+
+            }
+
+            modalCont.show();
+        },
+        doPrescription: (e) => {
+
+            let c, id = e.currentTarget.dataset.id;
+            if(e.currentTarget.checked){
+                c = confirm(__('Are you sure you want to enable prescription?'))
+                if(!c){ e.currentTarget.checked = false; return; }
+            }else{
+                c = confirm(__('Are you sure you want to cancel prescription?'))
+                if(!c){ e.currentTarget.checked = true; return; }
+            }
+
+            // let data = { prescriptions: _this.state.prescriptions };
+            let data = {};
+
+            // add drug prescription
+            if(e.currentTarget.checked){
+           
+                _this.state.prescriptions.push({'id': id, 'title': e.currentTarget.dataset.title, 'img': e.currentTarget.dataset.img, 'since':(new Date()).toISOString(), 'dosage':{}, 'periods':[], 'note': "", 'by': ""});
+                data.prescriptions = _this.state.prescriptions;
+            }
+
+            // remove drug prescription
+            if(!e.currentTarget.checked) {
+
+                data.prescriptions = _this.state.prescriptions.filter(function(value, index, arr){ 
+                    return value.id != id;
+                });
+
+                console.log("removing");
+            }
+
+            // send data
+            fetch('https://api-v1.kenzap.cloud/', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'text/plain',
+                    'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                    'Kenzap-Token': getCookie('kenzap_token'),
+                    'Kenzap-Sid': getSiteId(),
+                },
+                body: JSON.stringify({
+                    query: {
+                        patient: {
+                            type:       'update',
+                            key:        'ic-patient',   
+                            sid:        getSiteId(),
+                            id:         getPatientId(),
+                            data:       data
+                        }
+                    }
+                }) 
+            })
+            .then(response => response.json())
+            .then(response => {
+
+                if (response.success){
+
+                    // _this.state.modalCont.hide();
+                    // _this.getData();
+                    // open patient editing page
+                    // window.location.href = `/patient-view/?id=${ response.patient.id}`
+
+                }else{
+
+                    parseApiError(response);
+                }
+                
+                console.log('Success:', response);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            
+            // let c = confirm(__('Are you sure you want to cancel prescription'))
+            // console.log(e.currentTarget.checked)
+        },
         editSection: (e) => {
 
             e.preventDefault();
@@ -396,207 +876,6 @@ const _this = {
             modalCont.show();
     
             setTimeout( () => { if(modal.querySelector("input")){ modal.querySelector("input").focus(); }else{ if(modal.querySelector("textarea")){ modal.querySelector("textarea").focus(); } } }, 100);
-        },
-
-        editBlock: (e) => {
-
-            e.preventDefault();
-
-            let amb = document.querySelector('.add-mix-block');
-            amb.dataset.action = 'edit';
-            amb.dataset.index = e.currentTarget.dataset.index;
-            setTimeout(() => simulateClick(amb), 10);
-
-            console.log('editBlock');
-        },
-
-        removeBlock: (e) => {
-
-            e.preventDefault();
-
-            let c = confirm(__('Remove entire block?'));
-            if(c){ 
-                e.currentTarget.parentNode.parentNode.remove();
-                // e.currentTarget.parentElement.parentElement.remove();
-             }
-
-            console.log('removeBlock');
-        },
-
-        addMixBlock: (e) => {
-
-            e.preventDefault();
-
-            let action = e.currentTarget.dataset.action; // $(this).attr('data-action');
-            let index = e.currentTarget.dataset.index; // $(this).attr('data-index');
-            e.currentTarget.dataset.action = 'add'; // $(this).attr('data-action', 'add');
-
-            console.log('index: ' + index);
-
-            // init defaults
-            let modal_title = __('Add Variation Block');
-            let title = "";
-            let type = "";
-            let required = 0;
-            let modal_btn = __('Add'), modal_cancel_btn = __('Cancel');
-
-            // override defaults in editing mode
-            if(action == 'edit'){
-
-                modal_title = __('Edit Variation Block');
-
-                title = document.querySelector(".var-block[data-index='"+index+"']").dataset.title;
-                type  = document.querySelector(".var-block[data-index='"+index+"']").dataset.type;
-                required = parseInt(document.querySelector(".var-block[data-index='"+index+"']").dataset.required);
-
-                modal_btn = __('Save');
-            }
-
-            let pmodal = document.querySelector(".p-modal");
-            let pmodalCont = new bootstrap.Modal(pmodal);
-            
-            pmodal.querySelector(".modal-title").innerHTML = modal_title;
-            pmodal.querySelector(".btn-primary").innerHTML = modal_btn;
-            pmodal.querySelector(".btn-secondary").innerHTML = modal_cancel_btn;
-
-            pmodalCont.show();
-
-            let modalHTml = `\
-            <div class="form-cont">\
-                <div class="form-group mb-3">\
-                    <label for="mtitle" class="form-label">${ __('Save') }</label>\
-                    <input type="text" class="form-control" id="mtitle" autocomplete="off" placeholder="Rice type" value="${ title }">\
-                </div>\
-                <div class="form-group mb-3">\
-                    <label for="mtype" class="form-label">${ __('Input type') }</label>\
-                    <select id="mtype" class="form-control " >\
-                        <option ${ type=='radio'?'selected="selected"':'' } value="radio">${ __('Radio buttons') }</option>\
-                        <option ${ type=='checkbox'?'selected="selected"':'' } value="checkbox">${ __('Checkboxes') }</option>\
-                    </select>\
-                    <p class="card-description">${ __('Define how this renders on frontend.') }</p>\
-                </div>\
-                <div class="form-group mb-3">\
-                    <div class="form-check">\
-                        <label for="id="mtype"" class="form-check-label form-label">\
-                            <input id="mrequired" type="checkbox" class="form-check-input" ${ required==1?'checked="checked"':'' } value="1">\
-                            ${ __('Required') }\
-                        </label>\
-                    </div>\
-                    <p class="card-description">${ __('Make this variation mandatory for users.') }</p>\
-                </div>\
-                <div class="form-group mb-3 dn">\
-                    <label for="mtype" class="form-label">${ __('Minimum required') }</label>\
-                    <select id="mtype" class="form-control " >\
-                        <option value="1">1</option>\
-                        <option value="2">2</option>\
-                    </select>\
-                </div>\
-            </div>`;
-
-            pmodal.querySelector(".modal-body").innerHTML = modalHTml;
-
-            _this.listeners.modalSuccessBtnFunc = (e) => {
-
-                e.preventDefault();
-
-                let mtitle = pmodal.querySelector(".p-modal #mtitle").value;
-                let mtype = pmodal.querySelector(".p-modal #mtype").value;
-                let mrequired = pmodal.querySelector(".p-modal #mrequired:checked");
-                mrequired = mrequired == null ? 0 : mrequired.value == "1" ? 1 : 0;
-            
-                if(mtitle.length<2){ alert(__('Please provide longer title')); return; }
-
-                // add mix and match
-                let data = []; data['title'] = mtitle; data['type'] = mtype; data['required'] = mrequired; data['index'] = document.querySelectorAll(".var-block").length;
-                if(action == 'edit'){
-
-                    document.querySelector(".var-block[data-index='"+index+"']").dataset.title = mtitle;
-                    document.querySelector(".var-block[data-index='"+index+"']").dataset.type = mtype;
-                    document.querySelector(".var-block[data-index='"+index+"']").dataset.required = mrequired;
-                    document.querySelector(".var-block[data-index='"+index+"'] .title").innerHTML = mtitle;
-                }
-
-                if(action == 'add'){
-
-                    if(document.querySelector(".variation-blocks .var-block") == null){
-                        document.querySelector(".variation-blocks").innerHTML = _this.structMixBlock(data);
-                    }else{
-                        document.querySelector(".variation-blocks .var-block:last-of-type").insertAdjacentHTML('afterend', _this.structMixBlock(data));
-                    }
-                }
-
-                pmodalCont.hide();
-
-                setTimeout(() => _this.initListeners('partial'), 10);
-            }
-
-            console.log('addMixBlock');
-        },
-
-        addMixOption: (e) => {
-
-            let block_el = e.currentTarget;
-            e.preventDefault();
-
-            let pmodal = document.querySelector(".p-modal");
-            let pmodalCont = new bootstrap.Modal(pmodal);
-            
-            pmodalCont.show();
-
-            pmodal.querySelector(".modal-title").innerHTML = __('Add Variation');
-            pmodal.querySelector(".btn-primary").innerHTML = __('Add');
-            pmodal.querySelector(".btn-secondary").innerHTML = __('Cancel');
-
-            let modalHTML = `\
-            <div class="form-cont">\
-                <div class="form-group">\
-                    <label for="mtitle" class="form-label">${ __('Title') }</label>\
-                    <input type="text" class="form-control" id="mtitle" autocomplete="off" placeholder="${ __('Brown rice') }">\
-                </div>\
-                <div class="form-group">\
-                    <label for="mprice" class="form-label">${ __('Price') }</label>\
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">$</span>
-                        <input id="mprice" type="text" class="form-control" placeholder="0.00" value="" >\
-                        <p class="card-description">${ __('You can change default currency under Dashboard &gt; Settings.') }</p>\
-                    </div>\
-                </div>\
-            </div>`;
-
-            pmodal.querySelector(".modal-body").innerHTML = modalHTML;
-
-            _this.listeners.modalSuccessBtnFunc = (e) => {
-
-                e.preventDefault();
-
-                // validate
-                let mtitle = pmodal.querySelector(".p-modal #mtitle").value;
-                let mprice = pmodal.querySelector(".p-modal #mprice").value;
-                if(mtitle.length<2){ alert("Please provide longer title"); return; }
-
-                let data = []; data['title'] = mtitle; data['price'] = mprice; data['type'] = block_el.parentElement.parentElement.dataset.type;
-                let sel = ".var-block[data-index='"+block_el.parentElement.parentElement.dataset.index+"']";
-                console.log(sel);
-                
-                if(document.querySelector(sel + " .offer-pricef li") == null){
-                    document.querySelector(sel + " .offer-pricef").innerHTML = _this.structMixRow(data);
-                }else{
-                    document.querySelector(sel + " .offer-pricef li:last-of-type").insertAdjacentHTML('afterend', _this.structMixRow(data));
-                }
-
-                pmodalCont.hide();
-
-                setTimeout(() => _this.initListeners('partial'), 10);
-            };
-        },
-
-        removeOption: (e) => {
-
-            e.preventDefault();
-            
-            if( confirm('Remove option?') ) e.currentTarget.parentElement.remove();
-
-            console.log('removeOption');
         },
 
         savePatient: (e) => {
@@ -770,6 +1049,22 @@ const _this = {
             // $(this).addClass("hd");
         },
 
+        tabAnalytics: (e) => {
+
+            // dependencies already loaded
+            if(_this.state.renderAnalytics) setTimeout(function(){ _this.renderAnalytics(); },300);
+
+            // script loading callback
+            let cb = () => {
+
+                _this.state.tabAnalytics = true;
+                setTimeout(function(){ _this.renderAnalytics(); },300);
+            }
+
+            // console.log("tab analytics");
+            loadScript("https://www.gstatic.com/charts/loader.js", cb);  
+        },
+
         modalSuccessBtn: (e) => {
             
             console.log('calling modalSuccessBtnFunc');
@@ -778,42 +1073,44 @@ const _this = {
 
         modalSuccessBtnFunc: null
     },
+    renderAnalytics: () => {
 
-    structMixBlock: (data) => {
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
 
-        let html = '\
-        <div class="mb-4 var-block mw" data-title="'+data.title+'" data-type="'+data.type+'" data-required="'+data.required+'" data-index="'+data.index+'" >\
-            <label for="offer-pricef" class="form-label pb-2"><span class="title">' + data.title + '</span>\
-                &nbsp;&nbsp;\
-                <svg class="bi bi-pencil-fill edit-block ms-4" title="edit block" data-index="'+data.index+'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">\
-                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>\
-                </svg>\
-                <svg class="bi bi-trash remove-block ms-4" title="edit block" data-index="'+data.index+'"  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ff0079" viewBox="0 0 16 16">\
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"></path>\
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"></path>\
-                </svg>\
-            </label>\
-            <div class="list-wrapper">\
-                <ul class="d-flex flex-column-reverse offer-pricef" >\
-                \
-                </ul>\
-            </div>\
-            <p class="card-description"><a class="add-mix" href="#">+ add option</a> to differentiate price and patient options.</p>\
-            <div class="add-mix-ctn d-none"><a class="add-mix" href="#">+ add option</a></div>\
-        </div>\
-        ';
-    
-        return html;
-    },
-    structMixRow: (data) => {
+        let data3 = [
+            [__('Time'), __('Upper'), __('Lower')]
+        ];
+        if(_this.state.response.records) _this.state.response.records.forEach( el => {
 
-        return '\
-        <li data-title="'+data.title+'" data-price="'+data.price+'" data-cond="" class="pt-2 pb-2"><div class="form-check"><label class="form-check-label form-label"><input class="'+data.type+' form-check-input" type="'+data.type+'" checked="" data-ft="'+data.title+'">'+data.title+' &nbsp;&nbsp;&nbsp; '+formatPrice(data.price)+'</label></div>\
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ff0079" class="remove-option bi bi-x-circle" viewBox="0 0 16 16">\
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>\
-                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>\
-            </svg>\
-        </li>';
+            // hypertension
+            if(el.tags.includes('hypertension')) if(el.values && el.time) data3.push([(new Date(el.time)).toLocaleString(), parseInt(el.values.upper), parseInt(el.values.lower)]);
+  
+            // TODO heart rate and other graphs
+        });
+
+        let data2 = [
+            ['Year', 'Sales', 'Expenses'],
+            ['2004',  1000,      400],
+            ['2005',  1170,      460],
+            ['2006',  660,       1120],
+            ['2007',  1030,      540]
+        ];
+        console.log(data3);
+        console.log(data2);
+
+        function drawChart() {
+
+          let data = google.visualization.arrayToDataTable(data3);
+          let options = {
+            title: __('Blood Pressure'),
+            curveType: 'function',
+            legend: { position: 'bottom' }
+          };
+  
+          let chart = new google.visualization.LineChart(document.getElementById('chart'));
+          chart.draw(data, options);
+        }
     },
     loadImages: (patient) => {
 

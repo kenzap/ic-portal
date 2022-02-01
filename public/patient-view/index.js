@@ -108,16 +108,6 @@
     var id = urlParams.get('id') ? urlParams.get('id') : "";
     return id;
   };
-  var formatPrice = function formatPrice(price) {
-    var formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: "USD"
-    });
-    if (typeof price === 'undefined' || price == '') price = 0;
-    price = parseFloat(price);
-    price = formatter.format(price);
-    return price;
-  };
   var getCookie = function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -211,6 +201,16 @@
       } finally {
         _iterator5.f();
       }
+    }
+  };
+  var loadScript = function loadScript(url, cb) {
+    if (!Array.from(document.querySelectorAll('script')).some(function (elm) {
+      return elm.src == url;
+    })) {
+      var script = document.createElement('script');
+      script.onload = cb;
+      script.src = url;
+      document.getElementsByTagName('head')[0].appendChild(script);
     }
   };
   /**
@@ -431,7 +431,7 @@
     function DOMCreate() {
       var ul = document.createElement("ul");
       var input = document.createElement("input");
-      input.setAttribute('placeholder', 'new category');
+      input.setAttribute('placeholder', 'new entry');
       DOMParent.appendChild(ul);
       DOMParent.appendChild(input);
       DOMList = DOMParent.firstElementChild;
@@ -499,7 +499,7 @@
   };
 
   var HTMLContent = function HTMLContent(__) {
-    return "\n  <div class=\"container p-edit\">\n    <div class=\"d-flex justify-content-between bd-highlight mb-3\">\n        <nav class=\"bc\" aria-label=\"breadcrumb\"></nav>\n        <button class=\"btn btn-primary btn-add\" type=\"button\">".concat(__('Add record'), "</button>\n    </div>\n    <div class=\"row\">\n        <div class=\"col-lg-9 grid-margin grid-margin-lg-0 grid-margin-md-0 stretch-card\">\n            <div class=\"sections\" id=\"sections\" role=\"tablist\" style=\"width:100%;\">\n\n                <div class=\"row\">\n                    <div class=\"col-12 grid-margin stretch-card\">\n                        <div class=\"alert alert-danger d-flex align-items-center\" role=\"alert\">\n                            <svg class=\"bi flex-shrink-0 me-2\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" class=\"bi bi-exclamation-triangle-fill\" viewBox=\"0 0 16 16\">\n                                <path d=\"M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z\"></path>\n                            </svg>\n                            <div id=\"latest-alert\">\n                                An example danger alert with an icon\n                            </div>\n                        </div>\n                        \n                        <div class=\"card border-white shadow-sm p-sm-3\">\n\n                            <div class=\"card-body\" style=\"max-width: 540px;\">\n                                <div class=\"row g-0\">\n                                    <div class=\"col-md-3\">\n                                        <img src=\"https://account.kenzap.com/images/default_avatar.jpg\" style=\"max-height:100px;\" class=\"img-fluid rounded-circle\" alt=\"Patient avatar\">\n                                    </div>\n                                    <div class=\"col-md-9\">\n                                        <div class=\"\">\n                                            <h3 id=\"p-name\" class=\"card-title mt-3\"></h3>\n                                            <p id=\"p-bio\" class=\"card-text text-muted\"</p>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <nav class=\"card-body nav tab-content mt-1 mb-1\" role=\"tablist\">\n                                <div class=\"nav nav-tabs\" id=\"nav-tab\" role=\"tablist\"> \n                                    <a class=\"nav-link active\" id=\"nav-tab-3-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-3\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-3\" aria-selected=\"true\"  href=\"#\">").concat(__('Recent records'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-1-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-1\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-1\" aria-selected=\"true\" href=\"#\">").concat(__('General info'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-2-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-2\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-2\" aria-selected=\"true\" href=\"#\">").concat(__('Abnormalities'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-4-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-4\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-4\" aria-selected=\"true\"  href=\"#\">").concat(__('Prescriptions'), "</a>\n                                </div>\n                            </nav>\n                            \n                            <div class=\"card-body tab-content\" id=\"nav-tabContent\">\n                                <div class=\"tab-pane fade show active\" id=\"nav-tab-3\" role=\"tabpanel\" aria-labelledby=\"nav-tab-3-link\">\n\n                                    <div class=\"card-body\">\n                                        <div class=\"mb-4\">\n                                            <h4>").concat(__('Recent records'), "</h4>\n                                            <ul class=\"timeline\">\n                                                <li class=\"clearfix\">\n                                                    <a target=\"_blank\" href=\"https://www.totoprayogo.com/#\">New Web Design</a>\n                                                    <p class=\"mb-1\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p>\n                                                    <span class=\"float-end form-text text-muted\">21 March, 2014</span>\n                                                </li>\n                                                <li class=\"clearfix\">\n                                                    <a href=\"#\">21 000 Job Seekers</a>\n                                                    <p class=\"mb-1\">Curabitur purus sem, malesuada eu luctus eget, suscipit sed turpis. Nam pellentesque felis vitae justo accumsan, sed semper nisi sollicitudin...</p>\n                                                    <span class=\"float-end form-text text-muted\">4 March, 2014</span>\n                                                </li>\n                                                <li class=\"clearfix\">\n                                                    <a href=\"#\">Awesome Employers</a>\n                                                    <p class=\"mb-1\">Fusce ullamcorper ligula sit amet quam accumsan aliquet. Sed nulla odio, tincidunt vitae nunc vitae, mollis pharetra velit. Sed nec tempor nibh...</p>\n                                                    <span class=\"float-end form-text text-muted\">1 April, 2014</span>\n                                                </li>\n                                            </ul>\n                                        </div>\n                                    </div>\n\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-1\" role=\"tabpanel\" aria-labelledby=\"nav-tab-1-link\">\n                                    <div id=\"card-view\" class=\"card-body\">\n                                        <div id=\"placeholders\" class=\"d-none\">\n                                            <h4 id=\"elan\" class=\"card-title mb-4\">").concat(__('Description'), "</h4>\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-name-l form-label\" for=\"p-title\">").concat(__('Full Name'), "</label>\n                                                <input type=\"text\" class=\"form-control inp\" id=\"p-title\"\n                                                    placeholder=\"").concat(__('Sushi set..'), "\">\n                                                <p class=\"form-text\"> </p>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-descshort-l form-label\" for=\"p-sdesc\">").concat(__('Short Description'), "</label>\n                                                <textarea class=\"form-control inp\" id=\"p-sdesc\" placeholder=\"  \" maxlength=\"120\" rows=\"2\"></textarea>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-descshort-l form-label\" for=\"desc\">").concat(__('Images'), "</label>\n                                                <div class=\"clearfix\"></div>\n                                                <div class=\"ic\"></div>\n                                                <div class=\"clearfix\"></div>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <div class=\"clearfix\"></div>\n                                                <div style=\"clear:both;margin-top:16px;\"></div>\n                                                <label class=\"banner-descshort-l form-label\" for=\"p-desc\">").concat(__('Description'), "</label>\n                                                <textarea class=\"form-control inp\" id=\"p-ldesc\" placeholder=\" \" maxlength=\"2000\" rows=\"10\"></textarea>\n                                            </div>\n\n                                        </div>\n\n                                    </div>\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-2\" role=\"tabpanel\" aria-labelledby=\"nav-tab-2-link\">\n        ...\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-3\" role=\"tabpanel\" aria-labelledby=\"nav-tab-3-link\">\n        ...\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-4\" role=\"tabpanel\" aria-labelledby=\"nav-tab-4-link\">\n        ...\n                                </div>\n                            </div>\n\n                        </div>\n                    </div>\n\n                </div>\n\n            </div>\n        </div>\n        <div class=\"col-lg-3 grid-margin grid-margin-lg-0 grid-margin-md-0\">\n\n            <div class=\"row\">\n                <div class=\"col-12 grid-margin stretch-card\">\n                    <div class=\"card border-white shadow-sm p-sm-3\">\n                        <div class=\"card-body\">\n\n                            <h4 class=\"card-title\" style=\"display:none;\">").concat(__('General'), "</h4>\n                            <div class=\"landing_status\"></div>\n                            <input type=\"hidden\" class=\"form-control\" id=\"landing-slug\" value=\"\">\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">Status</h4>\n                            <div id=\"status-cont\" class=\"mb-3\">\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-publish form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"\n                                                id=\"p-status1\" value=\"1\">\n                                                ").concat(__('Published'), "\n                                        </label>\n                                    </div>\n                                </div>\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-draft form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"  id=\"p-status0\" value=\"0\">\n                                            ").concat(__('Draft'), "\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">Categories</h4>\n                            <div id=\"p-cats\" class=\"simple-tags mb-4\" data-simple-tags=\"\"></div>\n                            <div class=\"clearfix\"> </div>\n\n                            <div class=\"d-grid gap-2\">\n                                <button class=\"btn btn-primary btn-save\" type=\"button\">").concat(__('Save'), "</button>\n                            </div>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n  </div>\n\n  <div class=\"modal p-modal\" tabindex=\"-1\">\n    <div class=\"modal-dialog\">\n        <div class=\"modal-content\">\n            <div class=\"modal-header\">\n                <h5 class=\"modal-title\"></h5>\n                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n            </div>\n            <div class=\"modal-body\">\n\n            </div>\n            <div class=\"modal-footer\">\n                <button type=\"button\" class=\"btn btn-primary btn-modal\"></button>\n                <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\"></button>\n            </div>\n        </div>\n    </div>\n  </div>\n\n  <div class=\"position-fixed bottom-0 p-2 m-4 end-0 align-items-center\">\n    <div class=\"toast hide align-items-center text-white bg-dark border-0\" role=\"alert\" aria-live=\"assertive\"\n        aria-atomic=\"true\" data-bs-delay=\"3000\">\n        <div class=\"d-flex\">\n            <div class=\"toast-body\"></div>\n            <button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n        </div>\n    </div>\n  </div>\n  ");
+    return "\n  <div class=\"container p-edit\">\n    <div class=\"d-flex justify-content-between bd-highlight mb-3\">\n        <nav class=\"bc\" aria-label=\"breadcrumb\"></nav>\n        <button class=\"btn btn-primary btn-add\" type=\"button\">".concat(__('Add record'), "</button>\n    </div>\n    <div class=\"row\">\n        <div class=\"col-lg-9 grid-margin grid-margin-lg-0 grid-margin-md-0 stretch-card\">\n            <div class=\"sections\" id=\"sections\" role=\"tablist\" style=\"width:100%;\">\n\n                <div class=\"row\">\n                    <div class=\"col-12 grid-margin stretch-card\">\n                        <div class=\"alert alert-danger d-flex align-items-center\" role=\"alert\">\n                            <svg class=\"bi flex-shrink-0 me-2\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" class=\"bi bi-exclamation-triangle-fill\" viewBox=\"0 0 16 16\">\n                                <path d=\"M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z\"></path>\n                            </svg>\n                            <div id=\"latest-alert\">\n                                Please check \"Recent records\" tab for more details\n                            </div>\n                        </div>\n                        \n                        <div class=\"card border-white shadow-sm p-sm-3\">\n\n                            <div class=\"card-body\" style=\"max-width: 540px;\">\n                                <div class=\"row g-0\">\n                                    <div class=\"col-md-3\">\n                                        <img src=\"https://account.kenzap.com/images/default_avatar.jpg\" style=\"max-height:100px;\" class=\"img-fluid rounded-circle\" alt=\"Patient avatar\">\n                                    </div>\n                                    <div class=\"col-md-8\">\n                                        <div class=\"\">\n                                            <h3 id=\"p-name\" class=\"card-title mt-3\"></h3>\n                                            <p id=\"p-bio\" class=\"card-text text-muted\"</p>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <nav class=\"card-body nav tab-content mt-1 mb-1\" role=\"tablist\">\n                                <div class=\"nav nav-tabs\" id=\"nav-tab\" role=\"tablist\"> \n                                    <a class=\"nav-link active\" id=\"nav-tab-3-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-3\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-3\" aria-selected=\"true\"  href=\"#\">").concat(__('Recent records'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-1-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-1\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-1\" aria-selected=\"true\" href=\"#\">").concat(__('General info'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-2-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-2\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-2\" aria-selected=\"true\" href=\"#\">").concat(__('Analytics'), "</a>\n                                    <a class=\"nav-link\" id=\"nav-tab-4-link\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-tab-4\" type=\"button\" role=\"tab\" aria-controls=\"nav-tab-4\" aria-selected=\"true\" href=\"#\">").concat(__('Prescriptions'), "</a>\n                                </div>\n                            </nav>\n                            \n                            <div class=\"card-body tab-content\" id=\"nav-tabContent\">\n                                <div class=\"tab-pane fade show active\" id=\"nav-tab-3\" role=\"tabpanel\" aria-labelledby=\"nav-tab-3-link\">\n\n                                    <div class=\"card-body\">\n                                        <div class=\"mb-4\">\n                                            <h4>").concat(__('Recent records'), "</h4>\n                                            <ul class=\"timeline\">\n                                                <li class=\"clearfix\">\n                                                    <a target=\"_blank\" href=\"https://www.totoprayogo.com/#\">New Web Design</a>\n                                                    <p class=\"mb-1\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p>\n                                                    <span class=\"float-end form-text text-muted\">21 March, 2014</span>\n                                                </li>\n                                                <li class=\"clearfix\">\n                                                    <a href=\"#\">21 000 Job Seekers</a>\n                                                    <p class=\"mb-1\">Curabitur purus sem, malesuada eu luctus eget, suscipit sed turpis. Nam pellentesque felis vitae justo accumsan, sed semper nisi sollicitudin...</p>\n                                                    <span class=\"float-end form-text text-muted\">4 March, 2014</span>\n                                                </li>\n                                                <li class=\"clearfix\">\n                                                    <a href=\"#\">Awesome Employers</a>\n                                                    <p class=\"mb-1\">Fusce ullamcorper ligula sit amet quam accumsan aliquet. Sed nulla odio, tincidunt vitae nunc vitae, mollis pharetra velit. Sed nec tempor nibh...</p>\n                                                    <span class=\"float-end form-text text-muted\">1 April, 2014</span>\n                                                </li>\n                                            </ul>\n                                        </div>\n                                    </div>\n\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-1\" role=\"tabpanel\" aria-labelledby=\"nav-tab-1-link\">\n                                    <div id=\"card-view\" class=\"card-body\">\n                                        <div id=\"placeholders\" class=\"d-none\">\n                                            <h4 id=\"elan\" class=\"card-title mb-4\">").concat(__('Description'), "</h4>\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-name-l form-label\" for=\"p-title\">").concat(__('Full Name'), "</label>\n                                                <input type=\"text\" class=\"form-control inp\" id=\"p-title\"\n                                                    placeholder=\"").concat(__('Sushi set..'), "\">\n                                                <p class=\"form-text\"> </p>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-descshort-l form-label\" for=\"p-sdesc\">").concat(__('Short Description'), "</label>\n                                                <textarea class=\"form-control inp\" id=\"p-sdesc\" placeholder=\"  \" maxlength=\"120\" rows=\"2\"></textarea>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <label class=\"banner-descshort-l form-label\" for=\"desc\">").concat(__('Images'), "</label>\n                                                <div class=\"clearfix\"></div>\n                                                <div class=\"ic\"></div>\n                                                <div class=\"clearfix\"></div>\n                                            </div>\n\n                                            <div class=\"mb-3\">\n                                                <div class=\"clearfix\"></div>\n                                                <div style=\"clear:both;margin-top:16px;\"></div>\n                                                <label class=\"banner-descshort-l form-label\" for=\"p-desc\">").concat(__('Description'), "</label>\n                                                <textarea class=\"form-control inp\" id=\"p-ldesc\" placeholder=\" \" maxlength=\"2000\" rows=\"10\"></textarea>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-2\" role=\"tabpanel\" aria-labelledby=\"nav-tab-2-link\">\n                                    <div class=\"card-body\">\n                                        <div class=\"mb-4\">\n                                            <div class=\"d-flex justify-content-between\">\n                                                <h4 class=\"mb-0\">").concat(__('Analytics'), "</h4>\n                                                <div class=\"ms-2 dropdown\">\n                                                    <button class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" type=\"button\" id=\"dropdownMenuButton1\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\">\n                                                    Blood pressure\n                                                    </button>\n                                                    <ul class=\"dropdown-menu\" aria-labelledby=\"dropdownMenuButton1\" style=\"\">\n                                                        <li><a class=\"dropdown-item\" href=\"#\">Heart rate</a></li>\n                                                        <li><a class=\"dropdown-item\" href=\"#\">Anomaly frequency</a></li>\n                                                        <li><a class=\"dropdown-item\" href=\"#\">Body temperature</a></li>\n                                                    </ul>\n                                                </div>\n                                            </div>\n                                            <div id=\"chart\" style=\"width: 100%; height: 400px\"></div>\n                                        </div>\n                                    </div>\n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-3\" role=\"tabpanel\" aria-labelledby=\"nav-tab-3-link\">\n        \n                                </div>\n                                <div class=\"tab-pane fade\" id=\"nav-tab-4\" role=\"tabpanel\" aria-labelledby=\"nav-tab-4-link\">\n                                    <div class=\"card-body\">\n                                        <div class=\"mb-4\">\n                                            <h4>").concat(__('Active Prescriptions'), "</h4>\n                                            <div class=\"prescriptions\">\n\n                                            \n\n                                            </div>\n                                            <button class=\"btn btn-outline-primary add-prescription float-end mt-3\" type=\"button\">").concat(__('Manage prescriptions'), "</button>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n\n                </div>\n\n            </div>\n        </div>\n        <div class=\"col-lg-3 grid-margin grid-margin-lg-0 grid-margin-md-0\">\n\n            <div class=\"row\">\n                <div class=\"col-12 grid-margin stretch-card\">\n                    <div class=\"card border-white shadow-sm p-sm-3\">\n                        <div class=\"card-body\">\n\n                            <h4 class=\"card-title\" style=\"display:none;\">").concat(__('General'), "</h4>\n                            <div class=\"landing_status\"></div>\n                            <input type=\"hidden\" class=\"form-control\" id=\"landing-slug\" value=\"\">\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">").concat(__('Patient status'), "</h4>\n                            <div id=\"status-cont\" class=\"mb-3\">\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-publish form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"\n                                                id=\"p-status1\" value=\"1\">\n                                                ").concat(__('Active'), "\n                                        </label>\n                                    </div>\n                                </div>\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-draft form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"  id=\"p-status0\" value=\"0\">\n                                            ").concat(__('Paused'), "\n                                        </label>\n                                    </div>\n                                </div>\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-draft form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"  id=\"p-status0\" value=\"0\">\n                                            ").concat(__('Archive'), "\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">").concat(__('Categories'), "</h4>\n                            <div id=\"p-cats\" class=\"simple-tags mb-4\" data-simple-tags=\"\"></div>\n                            <div class=\"clearfix\"> </div>\n\n                            <div class=\"d-grid gap-2\">\n                                <button class=\"btn btn-primary btn-save\" type=\"button\">").concat(__('Save'), "</button>\n                            </div>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n  </div>\n\n  <div class=\"modal p-modal\" tabindex=\"-1\">\n    <div class=\"modal-dialog\">\n        <div class=\"modal-content\">\n            <div class=\"modal-header\">\n                <h5 class=\"modal-title\"></h5>\n                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n            </div>\n            <div class=\"modal-body\">\n\n            </div>\n            <div class=\"modal-footer\">\n                <button type=\"button\" class=\"btn btn-primary btn-modal\"></button>\n                <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\"></button>\n            </div>\n        </div>\n    </div>\n  </div>\n\n  <div class=\"position-fixed bottom-0 p-2 m-4 end-0 align-items-center\">\n    <div class=\"toast hide align-items-center text-white bg-dark border-0\" role=\"alert\" aria-live=\"assertive\"\n        aria-atomic=\"true\" data-bs-delay=\"3000\">\n        <div class=\"d-flex\">\n            <div class=\"toast-body\"></div>\n            <button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n        </div>\n    </div>\n  </div>\n  ");
   };
 
   var i18n = {
@@ -523,7 +523,16 @@
     },
     state: {
       firstLoad: true,
-      ajaxQueue: 0
+      response: {},
+      modalCont: null,
+      ajaxQueue: 0,
+      record_limit: 20,
+      symptoms: {
+        warning: ['diarrhoea'],
+        danger: ['hypertension', 'hypertension-stage-1', 'hypertension-stage-2']
+      },
+      prescriptions: [],
+      tabAnalytics: false
     },
     getData: function getData() {
       showLoader();
@@ -551,6 +560,16 @@
               id: id,
               fields: '*'
             },
+            records: {
+              type: 'find',
+              key: 'ic-record',
+              fields: '*',
+              limit: _this.state.record_limit,
+              search: {
+                field: 'patient_id',
+                s: id
+              }
+            },
             settings: {
               type: 'get',
               key: 'ic-settings',
@@ -570,6 +589,7 @@
         if (response.success) {
           i18n.init(response.locale);
           document.querySelector('#contents').innerHTML = HTMLContent(__);
+          _this.state.response = response;
 
           if (response.patient.length == 0) {
             _this.initListeners('all');
@@ -621,7 +641,8 @@
           var cf = _step.value;
           if (!cf) continue;
           var field = cf.split('|');
-          var id = slugify(field[0].trim(), {
+
+          var _id = slugify(field[0].trim(), {
             limit: 32
           });
 
@@ -633,20 +654,21 @@
               break;
 
             case 'text':
-              html += "\n                    <div class=\"mb-3 d-flex justify-content-between\">\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-gray\">".concat(__(field[0].trim()), "</label>\n                        </div>\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-dark inp\" data-id=\"").concat(id, "\" data-title=\"").concat(__(field[0].trim()), "\" data-type=\"").concat(field[1].trim(), "\">").concat(patient[id] ? patient[id] : __('n/a'), "</span>\n                        </div>\n                    </div>\n                    ");
+              html += "\n                    <div class=\"mb-3 d-flex justify-content-between\">\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-gray\">".concat(__(field[0].trim()), "</label>\n                        </div>\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-dark inp\" data-id=\"").concat(_id, "\" data-title=\"").concat(__(field[0].trim()), "\" data-type=\"").concat(field[1].trim(), "\">").concat(patient[_id] ? patient[_id] : __('n/a'), "</span>\n                        </div>\n                    </div>\n                    ");
               break;
 
             case 'list':
               var list = 'n/a';
 
-              if (patient[id]) {
+              if (patient[_id]) {
                 list = '';
-                patient[id].split(/\r?\n/).forEach(function (val) {
+
+                patient[_id].split(/\r?\n/).forEach(function (val) {
                   list += '<div class="mb-1">' + val + '</div>';
                 });
               }
 
-              html += "\n\n                    <div class=\"mb-3 d-flex justify-content-between\">\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-gray\">".concat(__(field[0].trim()), "</label>\n                        </div>\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-dark inp text-end\" data-id=\"").concat(id, "\" data-title=\"").concat(__(field[0].trim()), "\" data-type=\"").concat(field[1].trim(), "\">").concat(list, "</span>\n                        </div>\n                    </div>\n                    ");
+              html += "\n\n                    <div class=\"mb-3 d-flex justify-content-between\">\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-gray\">".concat(__(field[0].trim()), "</label>\n                        </div>\n                        <div class=\"col-auto\">\n                            <span class=\"form-text text-dark inp text-end\" data-id=\"").concat(_id, "\" data-title=\"").concat(__(field[0].trim()), "\" data-type=\"").concat(field[1].trim(), "\">").concat(list, "</span>\n                        </div>\n                    </div>\n                    ");
               break;
           }
         }
@@ -658,6 +680,48 @@
 
       if (sectionOpen) html += "</div>";
       d.querySelector("#card-view").insertAdjacentHTML('beforeEnd', html);
+      var timeline = "";
+      if (response.records) response.records.forEach(function (el) {
+        var tags_html = "";
+        el.tags.forEach(function (tag) {
+          var status = 'secondary';
+
+          if (_this.state.symptoms.danger.includes(tag)) {
+            status = 'danger';
+          } else if (_this.state.symptoms.warning.includes(tag)) {
+            status = 'warning';
+          }
+
+          tags_html += "<div class=\"badge bg-".concat(status, " text-light fw-light me-1\">").concat(tag, "</div>");
+        });
+        timeline += "\n            <li class=\"clearfix\">\n                <a target=\"_blank\" href=\"#\">".concat(tags_html, "</a>\n                <p class=\"mb-1\">").concat(el.note, "</p>\n                <span class=\"float-end form-text text-muted\">").concat(new Date(el.time).toLocaleString(), "</span>\n            </li>\n            ");
+      });
+
+      if (timeline == '') {
+        d.querySelector(".timeline").outerHTML = __('Currently, this patient has no active records.');
+      } else {
+        d.querySelector(".timeline").innerHTML = timeline;
+      }
+
+      var prescriptions = '';
+
+      if (response.patient.prescriptions) {
+        prescriptions += '<table class="table table-hover table-borderless align-middle table-striped table-p-list">';
+        _this.state.prescriptions = response.patient.prescriptions;
+        response.patient.prescriptions.forEach(function (drug) {
+          var img = 'https://cdn.kenzap.com/loading.png';
+          if (drug.img) img = CDN + '/S' + getSiteId() + '/medication-' + drug.id + '-1-100x100.jpeg?' + drug.time;
+          prescriptions += "\n                    <tr>\n                        <td>\n                            <div class=\"timgc\">\n                                <a href=\"".concat(link('/medication-edit/?id=' + drug.id), "\"><img src=\"").concat(img, "\" data-srcset=\"").concat(img, "\" class=\"img-fluid rounded\" alt=\"").concat(__("Drug placeholder"), "\" srcset=\"").concat(img, "\" ></a>\n                            </div>\n                        </td>\n                        <td class=\"destt\" style=\"max-width:250px;min-width:150px;\">\n                            <div class=\"mb-3 mt-3\"> \n                                <a class=\"text-body\" href=\"").concat(link('/medication-edit/?id=' + drug.id), "\" >").concat(drug.title, "<i style=\"color:#9b9b9b;font-size:15px;margin-left:8px;\" title=\"").concat(__("Edit product"), "\" class=\"mdi mdi-pencil menu-icon edit-page\"></i></a>\n                            </div>\n                        </td>\n                        <td class=\"since \">\n                            <div class=\"float-end form-text text-muted\">\n                                ").concat(new Date(drug.since).toLocaleString(), "\n                            </div>\n                        </td>\n                        <td class=\"d-none\">\n                            <a href=\"#\" data-id=\"").concat(drug.id, "\" class=\"remove-product text-danger \">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                                    <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"/>\n                                    <path fill-rule=\"evenodd\" d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"/>\n                                </svg>\n                            </a>\n                        </td>\n                    </tr>");
+          console.log(drug);
+        });
+        prescriptions += '</table>';
+      }
+
+      if (prescriptions == '') {
+        prescriptions = __('Currently, this patient has no active prescriptions.');
+      }
+
+      d.querySelector(".prescriptions").innerHTML = prescriptions;
       d.querySelector("#p-name").innerHTML = patient.name;
       d.querySelector("#p-bio").innerHTML = patient.bio;
       d.querySelector("#p-ldesc").value = patient.ldesc;
@@ -679,8 +743,213 @@
       onClick('.btn-section-edit', _this.listeners.editSection);
       onClick('.btn-modal', _this.listeners.modalSuccessBtn);
       if (!_this.state.firstLoad) return;
+      onClick('.btn-add', _this.listeners.addRecord);
+      onClick('.add-prescription', _this.listeners.addPrescription);
+      onClick('#nav-tab-2-link', _this.listeners.tabAnalytics);
     },
     listeners: {
+      addRecord: function addRecord(e) {
+        var modal = document.querySelector(".modal");
+        var modalCont = new bootstrap.Modal(modal);
+        modal.querySelector(".modal-title").innerHTML = __('Add Record');
+        modal.querySelector(".btn-primary").innerHTML = __('Add');
+        modal.querySelector(".btn-primary").style.display = "none";
+        modal.querySelector(".btn-secondary").innerHTML = __('Cancel');
+        var modalHTml = "            <div class=\"row\">\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_cold.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Cold, runny nose</p>\n                </div>\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_fever.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">High fever</p>\n                </div>\n            </div>\n\n            <div class=\"row mt-4\">\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_stethoscope.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Blood pressure, heart</p>\n                </div>\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_vomiting.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Vomitting</p>\n                </div>\n            </div>\n\n            <div class=\"row mt-4\">\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_diarrhea.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Diarrhea</p>\n                </div>\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_skin_disease.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Allergy, rash</p>\n                </div>\n            </div>\n\n            <div class=\"row mt-4\">\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_cough.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Cough</p>\n                </div>\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_headache.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Headache</p>\n                </div>\n            </div>\n\n            <div class=\"row mt-4\">\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_conjunctivitis.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Conjunctivitis</p>\n                </div>\n                <div class=\"col col-click text-center\">\n                    <img src=\"/img/_img_pain.png\" style=\"width:100px;height:100px;\" >\n                    <p class=\"text-muted\">Muscle pain</p>\n                </div>\n            </div>\n            ";
+        modal.querySelector(".modal-body").innerHTML = modalHTml;
+
+        _this.listeners.modalSuccessBtnFunc = function (e) {
+          e.preventDefault();
+          var data = {};
+          data.name = modal.querySelector("#p-name").value;
+          data.bio = modal.querySelector("#p-bio").value;
+          data.note = modal.querySelector("#p-note").value;
+          data.status = "0";
+          data.img = [];
+          data.cats = [];
+
+          if (data.name.length < 2) {
+            alert(__('Please provide patient\'s full name'));
+            return;
+          }
+
+          fetch('https://api-v1.kenzap.cloud/', {
+            method: 'post',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'text/plain',
+              'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+              'Kenzap-Token': getCookie('kenzap_token'),
+              'Kenzap-Sid': getSiteId()
+            },
+            body: JSON.stringify({
+              query: {
+                patient: {
+                  type: 'create',
+                  key: 'ic-patient',
+                  data: data
+                }
+              }
+            })
+          }).then(function (response) {
+            return response.json();
+          }).then(function (response) {
+            if (response.success) {
+              window.location.href = "/patient-view/?id=".concat(response.patient.id);
+            } else {
+              parseApiError(response);
+            }
+
+            console.log('Success:', response);
+          })["catch"](function (error) {
+            console.error('Error:', error);
+          });
+          console.log('savepatient');
+        };
+
+        modalCont.show();
+      },
+      addPrescription: function addPrescription(e) {
+        var modal = document.querySelector(".modal");
+        _this.state.modalCont = new bootstrap.Modal(modal);
+        modal.querySelector(".modal-title").innerHTML = __('Manage prescription');
+        modal.querySelector(".btn-primary").innerHTML = __('Confirm');
+        modal.querySelector(".btn-primary").style.display = "none";
+        modal.querySelector(".btn-secondary").innerHTML = __('Close');
+        var sm = "";
+        fetch('https://api-v1.kenzap.cloud/', {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'text/plain',
+            'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+            'Kenzap-Token': getCookie('kenzap_token'),
+            'Kenzap-Sid': getSiteId()
+          },
+          body: JSON.stringify({
+            query: {
+              medications: {
+                type: 'find',
+                key: 'ic-medication',
+                fields: ['_id', 'id', 'img', 'status', 'cats', 'title', 'updated'],
+                limit: _this.state.limit,
+                search: {
+                  field: 'title',
+                  s: sm
+                },
+                sortby: {
+                  field: 'title',
+                  order: 'DESC'
+                }
+              }
+            }
+          })
+        }).then(function (response) {
+          return response.json();
+        }).then(function (response) {
+          hideLoader();
+
+          if (response.success) {
+            var modalHTML = "                        <div class=\"search-cont input-group input-group-sm mb-0 justify-content-start\">     \n                            <input type=\"text\" placeholder=\"Search drugs\" class=\"form-control border-top-0 border-start-0 border-end-0 rounded-0\" aria-label=\"Search products\" aria-describedby=\"inputGroup-sizing-sm\" style=\"max-width: 200px;\">\n                        </div>\n                        <table class=\"table table-hover table-borderless align-middle table-striped table-p-list mt-2\">\n                            <thead>\n                                <tr>\n                                    <th>\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"#212529\" class=\"bi justify-content-end bi-search mb-1\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z\"></path>\n                                        </svg>\n                                    </th>\n                                    <th>\n                                        <span>Title</span>\n                                    </th>\n                                    <th class=\"float-end\">Prescription</th>\n                                </tr>\n                            </thead>\n                            <tbody>";
+            response.medications.forEach(function (el) {
+              var img = 'https://cdn.kenzap.com/loading.png';
+              if (typeof el.img === 'undefined') el.img = [];
+              if (el.img[0]) img = CDN + '/S' + getSiteId() + '/medication-' + el._id + '-1-100x100.jpeg?' + el.updated;
+              var checked = _this.state.prescriptions.filter(function (elf) {
+                return elf.id == el._id;
+              }).length ? 'checked="true"' : '';
+              modalHTML += "\n                                    <tr>\n                                        <td>\n                                            <div class=\"timgc\">\n                                                <a href=\"".concat(link('/medication-edit/?id=' + el._id), "\"><img src=\"").concat(img, "\" data-srcset=\"").concat(img, "\" class=\"img-fluid rounded\" alt=\"").concat(__("Product placeholder"), "\" srcset=\"").concat(img, "\" ></a>\n                                            </div>\n                                        </td>\n                                        <td class=\"destt\" style=\"max-width:250px;min-width:150px;\">\n                                            <div class=\"mb-3 mt-3\"> \n                                                <a class=\"text-body\" href=\"").concat(link('/medication-edit/?id=' + el._id), "\" >").concat(el.title, "<i style=\"color:#9b9b9b;font-size:15px;margin-left:8px;\" title=\"").concat(__("Edit product"), "\" class=\"mdi mdi-pencil menu-icon edit-page\"></i></a>\n                                            </div>\n                                        </td>\n                                        <td>\n                                            <div class=\"form-check form-switch float-end\">\n                                                <input class=\"form-check-input toggle-prescribe\" type=\"checkbox\" data-img=\"").concat(el.img[0], "\" data-id=\"").concat(el._id, "\" data-title=\"").concat(el.title, "\" role=\"switch\" id=\"doPrescription\" ").concat(checked, ">\n                                            </div>\n                                        </td>\n                                    </tr>");
+            });
+            modalHTML += "\n                            </tbody>\n                        </table>";
+            modal.querySelector(".modal-body").innerHTML = modalHTML;
+
+            _this.state.modalCont.show();
+
+            onChange('.toggle-prescribe', _this.listeners.doPrescription);
+          } else {
+            parseApiError(response);
+          }
+        })["catch"](function (error) {
+          console.error('Error:', error);
+        });
+        return;
+      },
+      doPrescription: function doPrescription(e) {
+        var c,
+            id = e.currentTarget.dataset.id;
+
+        if (e.currentTarget.checked) {
+          c = confirm(__('Are you sure you want to enable prescription?'));
+
+          if (!c) {
+            e.currentTarget.checked = false;
+            return;
+          }
+        } else {
+          c = confirm(__('Are you sure you want to cancel prescription?'));
+
+          if (!c) {
+            e.currentTarget.checked = true;
+            return;
+          }
+        }
+
+        var data = {};
+
+        if (e.currentTarget.checked) {
+          _this.state.prescriptions.push({
+            'id': id,
+            'title': e.currentTarget.dataset.title,
+            'img': e.currentTarget.dataset.img,
+            'since': new Date().toISOString(),
+            'dosage': {},
+            'periods': [],
+            'note': "",
+            'by': ""
+          });
+
+          data.prescriptions = _this.state.prescriptions;
+        }
+
+        if (!e.currentTarget.checked) {
+          data.prescriptions = _this.state.prescriptions.filter(function (value, index, arr) {
+            return value.id != id;
+          });
+          console.log("removing");
+        }
+
+        fetch('https://api-v1.kenzap.cloud/', {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'text/plain',
+            'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+            'Kenzap-Token': getCookie('kenzap_token'),
+            'Kenzap-Sid': getSiteId()
+          },
+          body: JSON.stringify({
+            query: {
+              patient: {
+                type: 'update',
+                key: 'ic-patient',
+                sid: getSiteId(),
+                id: getPatientId(),
+                data: data
+              }
+            }
+          })
+        }).then(function (response) {
+          return response.json();
+        }).then(function (response) {
+          if (response.success) ; else {
+            parseApiError(response);
+          }
+
+          console.log('Success:', response);
+        })["catch"](function (error) {
+          console.error('Error:', error);
+        });
+      },
       editSection: function editSection(e) {
         e.preventDefault();
         var modal = document.querySelector(".modal");
@@ -793,146 +1062,6 @@
             }
           }
         }, 100);
-      },
-      editBlock: function editBlock(e) {
-        e.preventDefault();
-        var amb = document.querySelector('.add-mix-block');
-        amb.dataset.action = 'edit';
-        amb.dataset.index = e.currentTarget.dataset.index;
-        setTimeout(function () {
-          return simulateClick(amb);
-        }, 10);
-        console.log('editBlock');
-      },
-      removeBlock: function removeBlock(e) {
-        e.preventDefault();
-        var c = confirm(__('Remove entire block?'));
-
-        if (c) {
-          e.currentTarget.parentNode.parentNode.remove();
-        }
-
-        console.log('removeBlock');
-      },
-      addMixBlock: function addMixBlock(e) {
-        e.preventDefault();
-        var action = e.currentTarget.dataset.action;
-        var index = e.currentTarget.dataset.index;
-        e.currentTarget.dataset.action = 'add';
-        console.log('index: ' + index);
-
-        var modal_title = __('Add Variation Block');
-
-        var title = "";
-        var type = "";
-        var required = 0;
-
-        var modal_btn = __('Add'),
-            modal_cancel_btn = __('Cancel');
-
-        if (action == 'edit') {
-          modal_title = __('Edit Variation Block');
-          title = document.querySelector(".var-block[data-index='" + index + "']").dataset.title;
-          type = document.querySelector(".var-block[data-index='" + index + "']").dataset.type;
-          required = parseInt(document.querySelector(".var-block[data-index='" + index + "']").dataset.required);
-          modal_btn = __('Save');
-        }
-
-        var pmodal = document.querySelector(".p-modal");
-        var pmodalCont = new bootstrap.Modal(pmodal);
-        pmodal.querySelector(".modal-title").innerHTML = modal_title;
-        pmodal.querySelector(".btn-primary").innerHTML = modal_btn;
-        pmodal.querySelector(".btn-secondary").innerHTML = modal_cancel_btn;
-        pmodalCont.show();
-        var modalHTml = "            <div class=\"form-cont\">                <div class=\"form-group mb-3\">                    <label for=\"mtitle\" class=\"form-label\">".concat(__('Save'), "</label>                    <input type=\"text\" class=\"form-control\" id=\"mtitle\" autocomplete=\"off\" placeholder=\"Rice type\" value=\"").concat(title, "\">                </div>                <div class=\"form-group mb-3\">                    <label for=\"mtype\" class=\"form-label\">").concat(__('Input type'), "</label>                    <select id=\"mtype\" class=\"form-control \" >                        <option ").concat(type == 'radio' ? 'selected="selected"' : '', " value=\"radio\">").concat(__('Radio buttons'), "</option>                        <option ").concat(type == 'checkbox' ? 'selected="selected"' : '', " value=\"checkbox\">").concat(__('Checkboxes'), "</option>                    </select>                    <p class=\"card-description\">").concat(__('Define how this renders on frontend.'), "</p>                </div>                <div class=\"form-group mb-3\">                    <div class=\"form-check\">                        <label for=\"id=\"mtype\"\" class=\"form-check-label form-label\">                            <input id=\"mrequired\" type=\"checkbox\" class=\"form-check-input\" ").concat(required == 1 ? 'checked="checked"' : '', " value=\"1\">                            ").concat(__('Required'), "                        </label>                    </div>                    <p class=\"card-description\">").concat(__('Make this variation mandatory for users.'), "</p>                </div>                <div class=\"form-group mb-3 dn\">                    <label for=\"mtype\" class=\"form-label\">").concat(__('Minimum required'), "</label>                    <select id=\"mtype\" class=\"form-control \" >                        <option value=\"1\">1</option>                        <option value=\"2\">2</option>                    </select>                </div>            </div>");
-        pmodal.querySelector(".modal-body").innerHTML = modalHTml;
-
-        _this.listeners.modalSuccessBtnFunc = function (e) {
-          e.preventDefault();
-          var mtitle = pmodal.querySelector(".p-modal #mtitle").value;
-          var mtype = pmodal.querySelector(".p-modal #mtype").value;
-          var mrequired = pmodal.querySelector(".p-modal #mrequired:checked");
-          mrequired = mrequired == null ? 0 : mrequired.value == "1" ? 1 : 0;
-
-          if (mtitle.length < 2) {
-            alert(__('Please provide longer title'));
-            return;
-          }
-
-          var data = [];
-          data['title'] = mtitle;
-          data['type'] = mtype;
-          data['required'] = mrequired;
-          data['index'] = document.querySelectorAll(".var-block").length;
-
-          if (action == 'edit') {
-            document.querySelector(".var-block[data-index='" + index + "']").dataset.title = mtitle;
-            document.querySelector(".var-block[data-index='" + index + "']").dataset.type = mtype;
-            document.querySelector(".var-block[data-index='" + index + "']").dataset.required = mrequired;
-            document.querySelector(".var-block[data-index='" + index + "'] .title").innerHTML = mtitle;
-          }
-
-          if (action == 'add') {
-            if (document.querySelector(".variation-blocks .var-block") == null) {
-              document.querySelector(".variation-blocks").innerHTML = _this.structMixBlock(data);
-            } else {
-              document.querySelector(".variation-blocks .var-block:last-of-type").insertAdjacentHTML('afterend', _this.structMixBlock(data));
-            }
-          }
-
-          pmodalCont.hide();
-          setTimeout(function () {
-            return _this.initListeners('partial');
-          }, 10);
-        };
-
-        console.log('addMixBlock');
-      },
-      addMixOption: function addMixOption(e) {
-        var block_el = e.currentTarget;
-        e.preventDefault();
-        var pmodal = document.querySelector(".p-modal");
-        var pmodalCont = new bootstrap.Modal(pmodal);
-        pmodalCont.show();
-        pmodal.querySelector(".modal-title").innerHTML = __('Add Variation');
-        pmodal.querySelector(".btn-primary").innerHTML = __('Add');
-        pmodal.querySelector(".btn-secondary").innerHTML = __('Cancel');
-        var modalHTML = "            <div class=\"form-cont\">                <div class=\"form-group\">                    <label for=\"mtitle\" class=\"form-label\">".concat(__('Title'), "</label>                    <input type=\"text\" class=\"form-control\" id=\"mtitle\" autocomplete=\"off\" placeholder=\"").concat(__('Brown rice'), "\">                </div>                <div class=\"form-group\">                    <label for=\"mprice\" class=\"form-label\">").concat(__('Price'), "</label>                    <div class=\"input-group mb-3\">\n                        <span class=\"input-group-text\">$</span>\n                        <input id=\"mprice\" type=\"text\" class=\"form-control\" placeholder=\"0.00\" value=\"\" >                        <p class=\"card-description\">").concat(__('You can change default currency under Dashboard &gt; Settings.'), "</p>                    </div>                </div>            </div>");
-        pmodal.querySelector(".modal-body").innerHTML = modalHTML;
-
-        _this.listeners.modalSuccessBtnFunc = function (e) {
-          e.preventDefault();
-          var mtitle = pmodal.querySelector(".p-modal #mtitle").value;
-          var mprice = pmodal.querySelector(".p-modal #mprice").value;
-
-          if (mtitle.length < 2) {
-            alert("Please provide longer title");
-            return;
-          }
-
-          var data = [];
-          data['title'] = mtitle;
-          data['price'] = mprice;
-          data['type'] = block_el.parentElement.parentElement.dataset.type;
-          var sel = ".var-block[data-index='" + block_el.parentElement.parentElement.dataset.index + "']";
-          console.log(sel);
-
-          if (document.querySelector(sel + " .offer-pricef li") == null) {
-            document.querySelector(sel + " .offer-pricef").innerHTML = _this.structMixRow(data);
-          } else {
-            document.querySelector(sel + " .offer-pricef li:last-of-type").insertAdjacentHTML('afterend', _this.structMixRow(data));
-          }
-
-          pmodalCont.hide();
-          setTimeout(function () {
-            return _this.initListeners('partial');
-          }, 10);
-        };
-      },
-      removeOption: function removeOption(e) {
-        e.preventDefault();
-        if (confirm('Remove option?')) e.currentTarget.parentElement.remove();
-        console.log('removeOption');
       },
       savePatient: function savePatient(e) {
         e.preventDefault();
@@ -1107,6 +1236,17 @@
         document.querySelector('.images-' + index).setAttribute('src', 'https://account.kenzap.com/images/placeholder.jpg');
         e.currentTarget.classList.add("hd");
       },
+      tabAnalytics: function tabAnalytics(e) {
+
+        var cb = function cb() {
+          _this.state.tabAnalytics = true;
+          setTimeout(function () {
+            _this.renderAnalytics();
+          }, 300);
+        };
+
+        loadScript("https://www.gstatic.com/charts/loader.js", cb);
+      },
       modalSuccessBtn: function modalSuccessBtn(e) {
         console.log('calling modalSuccessBtnFunc');
 
@@ -1114,38 +1254,31 @@
       },
       modalSuccessBtnFunc: null
     },
-    structMixBlock: function structMixBlock(data) {
-      var html = '\
-        <div class="mb-4 var-block mw" data-title="' + data.title + '" data-type="' + data.type + '" data-required="' + data.required + '" data-index="' + data.index + '" >\
-            <label for="offer-pricef" class="form-label pb-2"><span class="title">' + data.title + '</span>\
-                &nbsp;&nbsp;\
-                <svg class="bi bi-pencil-fill edit-block ms-4" title="edit block" data-index="' + data.index + '" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">\
-                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>\
-                </svg>\
-                <svg class="bi bi-trash remove-block ms-4" title="edit block" data-index="' + data.index + '"  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ff0079" viewBox="0 0 16 16">\
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"></path>\
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"></path>\
-                </svg>\
-            </label>\
-            <div class="list-wrapper">\
-                <ul class="d-flex flex-column-reverse offer-pricef" >\
-                \
-                </ul>\
-            </div>\
-            <p class="card-description"><a class="add-mix" href="#">+ add option</a> to differentiate price and patient options.</p>\
-            <div class="add-mix-ctn d-none"><a class="add-mix" href="#">+ add option</a></div>\
-        </div>\
-        ';
-      return html;
-    },
-    structMixRow: function structMixRow(data) {
-      return '\
-        <li data-title="' + data.title + '" data-price="' + data.price + '" data-cond="" class="pt-2 pb-2"><div class="form-check"><label class="form-check-label form-label"><input class="' + data.type + ' form-check-input" type="' + data.type + '" checked="" data-ft="' + data.title + '">' + data.title + ' &nbsp;&nbsp;&nbsp; ' + formatPrice(data.price) + '</label></div>\
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ff0079" class="remove-option bi bi-x-circle" viewBox="0 0 16 16">\
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>\
-                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>\
-            </svg>\
-        </li>';
+    renderAnalytics: function renderAnalytics() {
+      google.charts.load('current', {
+        'packages': ['corechart']
+      });
+      google.charts.setOnLoadCallback(drawChart);
+      var data3 = [[__('Time'), __('Upper'), __('Lower')]];
+      if (_this.state.response.records) _this.state.response.records.forEach(function (el) {
+        if (el.tags.includes('hypertension')) if (el.values && el.time) data3.push([new Date(el.time).toLocaleString(), parseInt(el.values.upper), parseInt(el.values.lower)]);
+      });
+      var data2 = [['Year', 'Sales', 'Expenses'], ['2004', 1000, 400], ['2005', 1170, 460], ['2006', 660, 1120], ['2007', 1030, 540]];
+      console.log(data3);
+      console.log(data2);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable(data3);
+        var options = {
+          title: __('Blood Pressure'),
+          curveType: 'function',
+          legend: {
+            position: 'bottom'
+          }
+        };
+        var chart = new google.visualization.LineChart(document.getElementById('chart'));
+        chart.draw(data, options);
+      }
     },
     loadImages: function loadImages(patient) {
       var d = document;
@@ -1196,19 +1329,21 @@
         for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
           var fileEl = _step9.value;
           fi += 1;
-          var id = getPatientId();
+
+          var _id2 = getPatientId();
+
           var sid = getSiteId();
           var file = fileEl.files[0];
           if (typeof file === "undefined") continue;
           var fd = new FormData();
           var sizes = '1000|500|250|100x100';
-          fd.append('id', id);
+          fd.append('id', _id2);
           fd.append('sid', sid);
-          fd.append('pid', id);
+          fd.append('pid', _id2);
           fd.append('key', 'image');
           fd.append('sizes', sizes);
           fd.append('file', file);
-          fd.append('slug', 'patient-' + id + '-' + fi);
+          fd.append('slug', 'patient-' + _id2 + '-' + fi);
           fd.append('token', getCookie('kenzap_token'));
           file.value = '';
           _this.state.ajaxQueue += 1;

@@ -23,6 +23,13 @@ export const getPatientId = () => {
     return id;
 }
 
+export const getMedicationId = () => {
+    
+    let urlParams = new URLSearchParams(window.location.search);
+    let id = urlParams.get('id') ? urlParams.get('id') : "";
+    return id;
+}
+
 export const getProductIdFromLink = () => {
     
     let url = new URL(window.location.href);
@@ -115,11 +122,22 @@ export const formatStatus = (st) => {
 
     st = parseInt(st); 
     switch(st){ 
-      case 0: return '<div class="badge bg-warning text-dark fw-light">Draft</div>';
-      case 1: return '<div class="badge bg-primary fw-light">Published</div>';
-      case 3: return '<div class="badge bg-secondary fw-light">Unpublished</div>';
+      case 0: return '<div class="badge bg-warning text-dark fw-light">Archive</div>';
+      case 1: return '<div class="badge bg-primary fw-light">Active</div>';
+      case 3: return '<div class="badge bg-secondary fw-light">Experimental</div>';
       default: return '<div class="badge bg-secondary fw-light">Drafts</div>';
     }
+}
+
+export const formatApplication = (application) => {
+
+    let html = '';
+    if(Array.isArray(application)) application.forEach(val => {
+
+        html += '<div class="badge bg-light text-dark fw-light me-1">'+val+'</div>'
+    });
+
+    return html;
 }
 
 export const formatPrice = (price) => {
@@ -260,13 +278,9 @@ export const onChange = (sel, fn) => {
 // time elapsed since creation 
 export const timeConverterAgo = (now, time) => {
 
-    console.log(now + " " + time);
-
     now = parseInt(now);
     time = parseInt(time);
-
-    console.log(now + " " + time);
-
+    
     // parse as elapsed time
     let past = now - time;
     if(past < 60) return 'moments ago';
@@ -284,6 +298,19 @@ export const timeConverterAgo = (now, time) => {
     var sec = a.getSeconds();
     var time = date + ' ' + month + ' ' + year; // + ' ' + hour + ':' + min + ':' + sec ;
     return time;
+}
+
+/**
+ * @param string url
+ * @return 
+ */
+export const loadScript = (url, cb) => {
+    if (!Array.from(document.querySelectorAll('script')).some(elm => elm.src == url)) {
+      let script = document.createElement('script')
+      script.onload = cb
+      script.src = url
+      document.getElementsByTagName('head')[0].appendChild(script)
+    }
 }
 
 /**

@@ -221,7 +221,7 @@
     function DOMCreate() {
       var ul = document.createElement("ul");
       var input = document.createElement("input");
-      input.setAttribute('placeholder', 'new category');
+      input.setAttribute('placeholder', 'new entry');
       DOMParent.appendChild(ul);
       DOMParent.appendChild(input);
       DOMList = DOMParent.firstElementChild;

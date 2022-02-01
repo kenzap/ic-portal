@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title></title> 
+	<head> 
+		<title></title>
 		<meta name="Description" content="" />
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,8 +10,7 @@
     <link href="https://account.kenzap.com/css/bootstrap.5.0.2.1.0.css" rel="stylesheet" crossorigin="anonymous">
     <link href="styles.css" rel="stylesheet">
 	</head>
-	<body class="bg-light bg-gradient" >
-
+	<body class="bg-light bg-gradient">
     <!-- navbar start -->
 		<nav class="navbar navbar-expand-md navbar-light fixed-top bg-white shadow-sm">
       <div class="container">
@@ -22,9 +21,14 @@
           <img style="max-height: 24px;" src="https://cdn.kenzap.com/logo.svg" alt="kenzap logo">
         </a>
         <div class="d-flex flex-column align-items-end" id="navbarCollapse">
-          <ul class="navbar-nav me-auto mb-0 mb-md-0">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
             <li class="nav-item dropdown">
-              <a class="" href="https://account.kenzap.com/profile/" id="nav-account" data-bs-toggle="dropdown" aria-expanded="false"><img src="https://account.kenzap.com/images/default_avatar.jpg" style="max-height:40px;border-radius:50%;" alt="profile"></a>
+              <a class="" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false"><img src="https://account.kenzap.com/images/default_avatar.jpg" style="max-height:40px;border-radius:50%;" alt="profile"></a>
+              <ul class="dropdown-menu" aria-labelledby="dropdown01">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -35,14 +39,32 @@
     <!-- main content start -->
 		<div id="contents" class="content mt-12 mb-12">
 
+      
+
 		</div>
     <!-- main content end -->
 
-		<footer class="container bg-light mt-5 mb-5">
+		<footer class="container bg-light">
       <div class="row">
         
       </div>
     </footer>
+
+    <div class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body"> </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-modal"></button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"></button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="loader">
       <div class="dots">

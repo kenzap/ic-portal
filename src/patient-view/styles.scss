@@ -58,6 +58,16 @@ ul.timeline > li:before {
     z-index: 400;
 }
 
+/* prescriptions */
+.timgc{
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.timgc img{
+    width:100%;
+}
+
 /* single product right pane */
 #p-status0:focus{border-color: rgb(255, 193, 7); box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.30);}
 #p-status0:checked{background-color: #ffc107;border-color: rgb(255, 193, 7);}

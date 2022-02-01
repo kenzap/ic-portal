@@ -18,7 +18,7 @@ return `
                                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
                             </svg>
                             <div id="latest-alert">
-                                An example danger alert with an icon
+                                Please check "Recent records" tab for more details
                             </div>
                         </div>
                         
@@ -29,7 +29,7 @@ return `
                                     <div class="col-md-3">
                                         <img src="https://account.kenzap.com/images/default_avatar.jpg" style="max-height:100px;" class="img-fluid rounded-circle" alt="Patient avatar">
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="">
                                             <h3 id="p-name" class="card-title mt-3"></h3>
                                             <p id="p-bio" class="card-text text-muted"</p>
@@ -42,8 +42,8 @@ return `
                                 <div class="nav nav-tabs" id="nav-tab" role="tablist"> 
                                     <a class="nav-link active" id="nav-tab-3-link" data-bs-toggle="tab" data-bs-target="#nav-tab-3" type="button" role="tab" aria-controls="nav-tab-3" aria-selected="true"  href="#">${ __('Recent records') }</a>
                                     <a class="nav-link" id="nav-tab-1-link" data-bs-toggle="tab" data-bs-target="#nav-tab-1" type="button" role="tab" aria-controls="nav-tab-1" aria-selected="true" href="#">${ __('General info') }</a>
-                                    <a class="nav-link" id="nav-tab-2-link" data-bs-toggle="tab" data-bs-target="#nav-tab-2" type="button" role="tab" aria-controls="nav-tab-2" aria-selected="true" href="#">${ __('Abnormalities') }</a>
-                                    <a class="nav-link" id="nav-tab-4-link" data-bs-toggle="tab" data-bs-target="#nav-tab-4" type="button" role="tab" aria-controls="nav-tab-4" aria-selected="true"  href="#">${ __('Prescriptions') }</a>
+                                    <a class="nav-link" id="nav-tab-2-link" data-bs-toggle="tab" data-bs-target="#nav-tab-2" type="button" role="tab" aria-controls="nav-tab-2" aria-selected="true" href="#">${ __('Analytics') }</a>
+                                    <a class="nav-link" id="nav-tab-4-link" data-bs-toggle="tab" data-bs-target="#nav-tab-4" type="button" role="tab" aria-controls="nav-tab-4" aria-selected="true" href="#">${ __('Prescriptions') }</a>
                                 </div>
                             </nav>
                             
@@ -103,22 +103,46 @@ return `
                                                 <label class="banner-descshort-l form-label" for="p-desc">${ __('Description') }</label>
                                                 <textarea class="form-control inp" id="p-ldesc" placeholder=" " maxlength="2000" rows="10"></textarea>
                                             </div>
-
                                         </div>
-
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav-tab-2" role="tabpanel" aria-labelledby="nav-tab-2-link">
-        ...
+                                    <div class="card-body">
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between">
+                                                <h4 class="mb-0">${ __('Analytics') }</h4>
+                                                <div class="ms-2 dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Blood pressure
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="">
+                                                        <li><a class="dropdown-item" href="#">Heart rate</a></li>
+                                                        <li><a class="dropdown-item" href="#">Anomaly frequency</a></li>
+                                                        <li><a class="dropdown-item" href="#">Body temperature</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div id="chart" style="width: 100%; height: 400px"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav-tab-3" role="tabpanel" aria-labelledby="nav-tab-3-link">
-        ...
+        
                                 </div>
                                 <div class="tab-pane fade" id="nav-tab-4" role="tabpanel" aria-labelledby="nav-tab-4-link">
-        ...
+                                    <div class="card-body">
+                                        <div class="mb-4">
+                                            <h4>${ __('Active Prescriptions') }</h4>
+                                            <div class="prescriptions">
+
+                                            
+
+                                            </div>
+                                            <button class="btn btn-outline-primary add-prescription float-end mt-3" type="button">${ __('Manage prescriptions') }</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -137,7 +161,7 @@ return `
                             <div class="landing_status"></div>
                             <input type="hidden" class="form-control" id="landing-slug" value="">
 
-                            <h4 id="elan" class="card-title mb-4">Status</h4>
+                            <h4 id="elan" class="card-title mb-4">${ __('Patient status') }</h4>
                             <div id="status-cont" class="mb-3">
 
                                 <div class="col-sm-12">
@@ -145,7 +169,7 @@ return `
                                         <label class="form-check-label status-publish form-label">
                                             <input type="radio" class="form-check-input" name="p-status"
                                                 id="p-status1" value="1">
-                                                ${ __('Published') }
+                                                ${ __('Active') }
                                         </label>
                                     </div>
                                 </div>
@@ -154,13 +178,22 @@ return `
                                     <div class="form-check">
                                         <label class="form-check-label status-draft form-label">
                                             <input type="radio" class="form-check-input" name="p-status"  id="p-status0" value="0">
-                                            ${ __('Draft') }
+                                            ${ __('Paused') }
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <div class="form-check">
+                                        <label class="form-check-label status-draft form-label">
+                                            <input type="radio" class="form-check-input" name="p-status"  id="p-status0" value="0">
+                                            ${ __('Archive') }
                                         </label>
                                     </div>
                                 </div>
                             </div>
 
-                            <h4 id="elan" class="card-title mb-4">Categories</h4>
+                            <h4 id="elan" class="card-title mb-4">${ __('Categories') }</h4>
                             <div id="p-cats" class="simple-tags mb-4" data-simple-tags=""></div>
                             <div class="clearfix"> </div>
 

@@ -183,6 +183,16 @@ ul.timeline > li:before {
   z-index: 400;
 }
 
+/* prescriptions */
+.timgc {
+  max-height: 50px;
+  max-width: 50px;
+}
+
+.timgc img {
+  width: 100%;
+}
+
 /* single product right pane */
 #p-status0:focus {
   border-color: #ffc107;

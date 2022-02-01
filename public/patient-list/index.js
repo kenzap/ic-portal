@@ -175,23 +175,6 @@
       _iterator.f();
     }
   };
-  var formatStatus = function formatStatus(st) {
-    st = parseInt(st);
-
-    switch (st) {
-      case 0:
-        return '<div class="badge bg-warning text-dark fw-light">Draft</div>';
-
-      case 1:
-        return '<div class="badge bg-primary fw-light">Published</div>';
-
-      case 3:
-        return '<div class="badge bg-secondary fw-light">Unpublished</div>';
-
-      default:
-        return '<div class="badge bg-secondary fw-light">Drafts</div>';
-    }
-  };
   var formatTime = function formatTime(timestamp) {
     var a = new Date(timestamp * 1000);
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -255,14 +238,6 @@
     html += '</ol>';
     document.querySelector(".bc").innerHTML = html;
   };
-  var simulateClick = function simulateClick(elem) {
-    var evt = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    !elem.dispatchEvent(evt);
-  };
   var onClick = function onClick(sel, fn) {
     if (document.querySelector(sel)) {
       var _iterator3 = _createForOfIteratorHelper(document.querySelectorAll(sel)),
@@ -300,6 +275,14 @@
     }
   };
 
+  var initHeader = function initHeader(response) {
+    if (response.header) localStorage.setItem('header', response.header);
+    var child = document.createElement('div');
+    child.innerHTML = localStorage.getItem('header');
+    child = child.firstChild;
+    document.body.appendChild(child);
+    eval(document.querySelector("#k-script").innerHTML);
+  };
   var showLoader = function showLoader() {
     var el = document.querySelector(".loader");
     if (el) el.style.display = 'block';
@@ -348,6 +331,7 @@
           'Accept': 'application/json',
           'Content-Type': 'text/plain',
           'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+          'Kenzap-Header': false,
           'Kenzap-Token': getCookie('kenzap_token'),
           'Kenzap-Sid': getSiteId()
         },
@@ -386,12 +370,11 @@
 
         if (response.success) {
           i18n.init(response.locale);
+          initHeader(response);
 
           _this.loadPageStructure();
 
           _this.renderPage(response);
-
-          _this.initHeader(response);
 
           _this.initListeners();
 
@@ -405,13 +388,6 @@
         }
       })["catch"](function (error) {
         console.error('Error:', error);
-      });
-    },
-    initHeader: function initHeader(response) {
-      onClick('.nav-back', function (e) {
-        e.preventDefault();
-        var link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-        simulateClick(link);
       });
     },
     authUser: function authUser(response) {
@@ -434,7 +410,7 @@
         }, {
           text: __('Patient list')
         }]);
-        document.querySelector(".table thead").innerHTML = "\n                <tr>\n                    <th>\n                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"#212529\" class=\"bi justify-content-end bi-search mb-1\" viewBox=\"0 0 16 16\" >\n                            <path d=\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z\"></path>\n                        </svg>\n                    </th>\n                    <th>\n                        <div class=\"search-cont input-group input-group-sm mb-0 justify-content-start\">     \n                            <input type=\"text\" placeholder=\"".concat(__('Search patients'), "\" class=\"form-control border-top-0 border-start-0 border-end-0 rounded-0\" aria-label=\"").concat(__('Search patients'), "\" aria-describedby=\"inputGroup-sizing-sm\" style=\"max-width: 200px;\">\n                        </div>\n                        <span>").concat(__("Name"), "</span>\n                    </th>\n                    <th>").concat(__("Alerts"), "</th>\n                    <th>").concat(__("Last anomalies"), "</th>\n                    <th>").concat(__("Last update"), "</th>\n                    <th></th>\n                </tr>");
+        document.querySelector(".table thead").innerHTML = "\n                <tr>\n                    <th>\n                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"#212529\" class=\"bi justify-content-end bi-search mb-1\" viewBox=\"0 0 16 16\" >\n                            <path d=\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z\"></path>\n                        </svg>\n                    </th>\n                    <th>\n                        <div class=\"search-cont input-group input-group-sm mb-0 justify-content-start\">     \n                            <input type=\"text\" placeholder=\"".concat(__('Search patients'), "\" class=\"form-control border-top-0 border-start-0 border-end-0 rounded-0\" aria-label=\"").concat(__('Search patients'), "\" aria-describedby=\"inputGroup-sizing-sm\" style=\"max-width: 200px;\">\n                        </div>\n                        <span>").concat(__("Name"), "</span>\n                    </th>\n                    <th>").concat(__("Latest anomalies"), "</th>\n                    <th>").concat(__("Last update"), "</th>\n                    <th></th>\n                </tr>");
       }
 
       if (response.patients.length == 0) {
@@ -449,7 +425,7 @@
         var img = 'https://account.kenzap.com/images/default_avatar.jpg';
         if (typeof response.patients[i].img === 'undefined') response.patients[i].img = [];
         if (response.patients[i].img[0]) img = CDN + '/S' + sid + '/patient-' + response.patients[i]._id + '-1-100x100.jpeg?' + response.patients[i].updated;
-        list += "\n                <tr>\n                    <td>\n                        <div class=\"timgc\">\n                            <a href=\"".concat(link('/patient-view/?id=' + response.patients[i]._id), "\"><img src=\"").concat(img, "\" data-srcset=\"").concat(img, "\" class=\"img-fluid rounded-circle\" alt=\"").concat(__("Patient placeholder"), "\" srcset=\"").concat(img, "\" ></a>\n                        </div>\n                    </td>\n                    <td class=\"destt\" style=\"max-width:250px;min-width:250px;\">\n                        <div class=\"mb-3 mt-3\"> \n                            <a class=\"text-body\" href=\"").concat(link('/patient-view/?id=' + response.patients[i]._id), "\" >").concat(response.patients[i].name, "<i style=\"color:#9b9b9b;font-size:15px;margin-left:8px;\" title=\"").concat(__("View patient"), "\" class=\"mdi mdi-pencil menu-icon edit-page\"></i></a>\n                        </div>\n                    </td>\n                    <td>\n                        <span>").concat(formatStatus(response.patients[i].status), "</span>\n                    </td>\n                    <td>\n                        <span>").concat(response.patients[i].price, "</span>\n                    </td>\n                    <td>\n                        <span>").concat(formatTime(response.patients[i].updated), "</span>\n                    </td>\n                    <td> \n                        <a href=\"#\" data-id=\"").concat(response.patients[i]._id, "\" class=\"remove-patient text-danger \">\n                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"/>\n                                <path fill-rule=\"evenodd\" d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"/>\n                            </svg>\n                        </a>\n                        <i title=\"").concat(__("Remove this patient"), "\" data-key=\"").concat(response.patients[i].id, "\" class=\"mdi mdi-trash-can-outline list-icon remove-patient\"></i>\n                    </td>\n                </tr>");
+        list += "\n                <tr>\n                    <td>\n                        <div class=\"timgc\">\n                            <a href=\"".concat(link('/patient-view/?id=' + response.patients[i]._id), "\"><img src=\"").concat(img, "\" data-srcset=\"").concat(img, "\" class=\"img-fluid rounded-circle\" alt=\"").concat(__("Patient placeholder"), "\" srcset=\"").concat(img, "\" ></a>\n                        </div>\n                    </td>\n                    <td class=\"destt\" style=\"max-width:250px;min-width:250px;\">\n                        <div class=\"mb-3 mt-3\"> \n                            <a class=\"text-body\" href=\"").concat(link('/patient-view/?id=' + response.patients[i]._id), "\" >").concat(response.patients[i].name, "<i style=\"color:#9b9b9b;font-size:15px;margin-left:8px;\" title=\"").concat(__("View patient"), "\" class=\"mdi mdi-pencil menu-icon edit-page\"></i></a>\n                        </div>\n                    </td>\n                    <td>\n                        <span>").concat(_this.formatAnomalies(response.patients[i]), "</span>\n                    </td>\n\n                    <td>\n                        <span>").concat(formatTime(response.patients[i].updated), "</span>\n                    </td>\n                    <td> \n                        <a href=\"#\" data-id=\"").concat(response.patients[i]._id, "\" class=\"remove-patient text-danger \">\n                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"/>\n                                <path fill-rule=\"evenodd\" d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"/>\n                            </svg>\n                        </a>\n                        <i title=\"").concat(__("Remove this patient"), "\" data-key=\"").concat(response.patients[i].id, "\" class=\"mdi mdi-trash-can-outline list-icon remove-patient\"></i>\n                    </td>\n                </tr>");
       }
 
       document.querySelector(".table tbody").innerHTML = list;
@@ -517,6 +493,13 @@
       },
       modalSuccessBtnFunc: null
     },
+    formatAnomalies: function formatAnomalies(list) {
+      if (list._id == '3d7dc7a902a87a9968d545f74044e1b9c26bcbc5') {
+        return '<a target="_blank" href="#"><div class="badge bg-danger text-light fw-light me-1">hypertension</div><div class="badge bg-danger text-light fw-light me-1">hypertension-stage-2</div></a>';
+      } else {
+        return '-';
+      }
+    },
     addPatient: function addPatient(e) {
       var modal = document.querySelector(".modal");
       var modalCont = new bootstrap.Modal(modal);
@@ -566,7 +549,7 @@
           return response.json();
         }).then(function (response) {
           if (response.success) {
-            window.location.href = "/patient-view/?id=".concat(response.patient.id);
+            window.location.href = link("/patient-view/?id=".concat(response.patient.id));
           } else {
             parseApiError(response);
           }
@@ -580,7 +563,7 @@
 
       modalCont.show();
       setTimeout(function () {
-        return modal.querySelector("#p-title").focus();
+        return modal.querySelector("#p-name").focus();
       }, 100);
     },
     initPagination: function initPagination(response) {

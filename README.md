@@ -19,6 +19,7 @@ Real-time monitoring of overseas cancer patients. Kenzap Cloud Extension.
 <li>Conveniently manage multiple patients</li>
 <li>Scale and localize solution</li>
 <li>Set custom notifications</li>
+<li>Tele-health, tele-oncology monitoring</li>
 <li>Collaborate</li>
 </ul>
 
