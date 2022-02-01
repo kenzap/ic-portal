@@ -3,7 +3,7 @@
     "prefix": "ic",
     "domain": "icportal",
     "version": "1.0.0",
-    "description": "Real-time monitoring of overseas cancer patients. Kenzap Cloud solution.",
+    "description": "Real-time monitoring of overseas cancer patients. Tele-oncology Kenzap Cloud extension.",
     "keywords": "patients, analisys, doctors, healthcare",
     "author": "Kenzap Pte Ltd",
     "license": {
