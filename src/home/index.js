@@ -1,6 +1,5 @@
 // js dependencies
-import { getSiteId, simulateClick, getCookie, parseApiError, onClick, initBreadcrumbs, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, initHeader, initFooter} from "../_/_ui.js"
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, getSiteId, onClick, link } from '@kenzap/k-cloud';
 import { HTMLContent } from "../_/_cnt_home.js"
 
 // where everything happens
@@ -90,33 +89,6 @@ const _this = {
             ]
         );
     },
-    // initHeader: (response) => {
-
-    //     onClick('.nav-back', (e) => {
-
-    //         e.preventDefault();
-    //         console.log('.nav-back');
-    //         let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-    //         simulateClick(link);
-    //     });
-    // },
-    // initListeners: (type = 'partial') => {
-
-    //     console.log('initListeners ');
-
-    //     // listeners that can be initiated only once
-    //     if(type == 'all'){
-
-    //         // // product save button
-    //         // onClick('.btn-save', _this.listeners.saveProduct);
-            
-    //         // // modal success button
-    //         // onClick('.p-modal .btn-primary', _this.listeners.modalSuccessBtn);
-    //     }
-
-
-
-    // },
     listeners: {
 
 
