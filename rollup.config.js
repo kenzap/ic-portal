@@ -12,10 +12,11 @@ import fs from 'fs';
 // import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 
+// get build mode
+const prodEnv = process.env.BABEL_ENV === "production"
 const targetFolder = "public/"
+const srcFolder = "src/"
 const absolutePath = (dirPath) => path.resolve(__dirname, dirPath)
-
-
 
 /**
  * This is a simple build pipeline for JavaScript files.
@@ -49,15 +50,12 @@ const terserPlugin = terser({
 })
 
 let workingFolders = [];
- 
+
 /* prepare script import paths */
-let scriptFiles = glob.sync(absolutePath("src/**/!(_)*.js"))
+let scriptFiles = glob.sync(absolutePath("src/!(_)*/!(_)*.js"))
 const scriptInputs = scriptFiles.reduce((files, input) => {
 	const parts = input.split("src/")
 	const fileKey = parts[parts.length - 1]
-	
-	// if(parts[1]!='home')
-	// workingFolders.push(parts[1].replace('.js','.html'))
 	return { [fileKey]: absolutePath(input), ...files }
 }, {})
 
@@ -70,40 +68,93 @@ const scriptOutputs = scriptPaths.reduce((files, file) => {
 	const outputPath = parts.slice(pathIndex).join("/")
 
 	// find working folders only
-	if(outputPath.indexOf("home/") != -1 && outputPath.indexOf("_/") != -1){
-		workingFolders.push(parts[parts.length-2]);
-	}
+	// if(outputPath.indexOf("home/") != -1 && outputPath.indexOf("_/") != -1){
+	// 	workingFolders.push(parts[parts.length-2]);
+	// }
 
-	// homepage goes to root
-	if(outputPath.indexOf("home/") != -1){
+	// // homepage goes to root
+	// if(outputPath.indexOf("home/") != -1){
 
-		return { [file]: absolutePath(targetFolder + parts[parts.length-1]), ...files }
+	// 	return { [file]: absolutePath(targetFolder + parts[parts.length-1]), ...files }
 
-	// any other page ordinary route
-	}else{
+	// // any other page ordinary route
+	// }else{
 
-		return { [file]: absolutePath(targetFolder + outputPath), ...files }
-	}
+		// return { [file]: absolutePath(targetFolder + outputPath), ...files }
+	// }
 
+
+	workingFolders.push(parts[parts.length-2]);
+	return { [file]: absolutePath(targetFolder + outputPath), ...files }
+	
 }, {})
 
-// creates predefined index.html files for browser navigation
-function createIndexes(key){
+/**
+ * Do localizations here. Get through every .js file and find i18n occurances, ex.: __()
+ * extract all texts and save under public/locales/default.json file.
+ * 
+ * Prepare scripts for localization. Automatically run in production mode only
+ */
 
-	let keyF = key.replace('.js','.html');
-	keyF = keyF.replace('home/','');
+if(prodEnv){
+	
+	// flush public folder
+	// if (fs.existsSync(targetFolder)) fs.rmdirSync(targetFolder, { recursive: true });
 
-	fs.copyFile('src/_/_index.html', targetFolder + keyF, function (err) {
-		if (err) throw err;
-		// console.log('Error creating '+targetFolder + keyF+' index file, make sure that template index file exists in src/_/_index.html. Error: ' + err);
-	});
+	// set locales folder
+	// fs.mkdirSync( targetFolder );
+	fs.mkdirSync( targetFolder + 'locales/' );
+	fs.writeFileSync( targetFolder + 'locales/default.json', '{ "language": "default", "texts": {} }', { flag:'w' } ); // set defaults
 
-	// public/home is now moved to root folder, removing instead
-	if (fs.existsSync(targetFolder + 'home')) fs.rmdirSync(targetFolder + 'home', { recursive: true });
+	// if (!fs.existsSync( targetFolder + 'locales/' )){ fs.mkdirSync( targetFolder + 'locales/' ); } // create locales folder if not exists yet
+	// if (fs.existsSync( targetFolder + 'locales/default.json' )){ fs.rmSync( targetFolder + 'locales/default.json', { recursive: true }); } // remove previous version 
+	
+	let scriptFilesAll = glob.sync(absolutePath("src/**/*.js"))
+	scriptFilesAll.reduce((files, input) => { i18n(input); });
+	function i18n(key){ // export i18n
+
+		// get current strings
+		var def = fs.readFileSync( targetFolder + '/locales/default.json', { encoding:'utf8', flag:'r' });
+		var defJS = JSON.parse(def);
+
+		// find strings
+		if (fs.existsSync( key )){
+			
+			var temp = fs.readFileSync( key, {encoding:'utf8', flag:'r'});
+			var regex = new RegExp(/__\((.*?)\)/g);
+			var result;
+			while (result = regex.exec(temp)) {
+
+				var string = result[1].replace(/\"/g, '','g').replace(/'/g, '');
+				defJS['texts'][string] = string;
+			}
+
+			// write default locale
+			fs.writeFileSync( targetFolder + 'locales/default.json', JSON.stringify(defJS) ); 
+		}
+	}
 }
 
+// creates predefined index.html files for browser navigation
+// function createIndexes(key){
+
+// 	let keyF = key.replace('.js','.html');
+// 	keyF = keyF.replace('home/','');
+
+// 	fs.copyFile('src/_/_index.html', targetFolder + keyF, function (err) {
+// 		if (err) throw err;
+// 		// console.log('Error creating '+targetFolder + keyF+' index file, make sure that template index file exists in src/_/_index.html. Error: ' + err);
+// 	});
+
+// 	// public/home is now moved to root folder, removing instead TODO results in conflicts
+// 	// if (fs.existsSync(targetFolder + 'home')) fs.rmdirSync(targetFolder + 'home', { recursive: true });
+// }
+
 const bundles = scriptPaths.map((key) => {
-	const prodEnv = process.env.BABEL_ENV === "production"
+
+	let sourcemap = true
+
+	// plugin list for any build mode
 	const plugins = [
 		nodeResolve(),
 		commonjs(), 
@@ -115,23 +166,29 @@ const bundles = scriptPaths.map((key) => {
 		copy({
 			targets: [
 				{ src: ['public/home/*'], dest: 'public' },
-			]
-		}),
-		createIndexes(key),
-		livereload({
-			watch: [ 
-			  path.resolve(__dirname, 'public'),
+				// { src: ['src/**/*', '!src/_/*'], dest: 'public' },
 			],
-			delay: 500,
-			exts: [ 'html', 'js', 'scss', 'sass', 'css' ]
+			// flatten: false
 		}),
+		// createIndexes(key),
 	]
 
-	let sourcemap = true
-
+	// plugin list for production mode
 	if (prodEnv) {
+
 		plugins.push(terserPlugin)
 		sourcemap = false
+	// plugin list development mode
+	}else{
+		plugins.push(
+			livereload({
+				watch: [ 
+				path.resolve(__dirname, 'public'),
+				],
+				delay: 500,
+				exts: [ 'html', 'js', 'scss', 'sass', 'css' ]
+			})
+		)
 	}
 
 	return {
